@@ -1,4 +1,3 @@
-from GooUbot import InlineKeyboard
 from pyrogram.types import InlineKeyboardButton
 from pyrogram.types import *
 from pyromod.helpers import ikb
