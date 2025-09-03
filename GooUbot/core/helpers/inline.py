@@ -1,5 +1,5 @@
 from pyrogram.types import InlineKeyboardButton
-from pyrogram.types import *
+from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
 from pyromod.helpers import ikb
 from GooUbot import *
 
@@ -100,7 +100,7 @@ class BTN:
         return button
         
     def ADD_EXP(user_id):
-        buttons = InlineKeyboard(row_width=3)
+        buttons = InlineKeyboardMarkup(row_width=3)
         keyboard = []
         for X in range(1, 13):
             keyboard.append(

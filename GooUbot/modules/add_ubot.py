@@ -5,6 +5,7 @@ from datetime import datetime
 from pyrogram.enums import SentCodeType
 from pyrogram.errors import *
 from pyrogram.types import *
+from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
 from pyrogram.raw import functions
 
 from GooUbot import *
