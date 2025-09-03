@@ -131,40 +131,28 @@ class BTN:
     
     def START(message):
         if not message.from_user.id == OWNER_ID:
-            button = [
-                [
-                    InlineKeyboardButton("ʙᴜʏ ᴜʙᴏᴛ", callback_data="bahan"),
-                ], 
-                [
-                    InlineKeyboardButton("ᴛʀɪᴀʟ", callback_data="trial_ubot"),
-                    InlineKeyboardButton("ғɪᴛᴜʀ", callback_data="help_back")
+            button = ReplyKeyboardMarkup(
+                keyboard=[
+                    [KeyboardButton("ʙᴜʏ ᴜʙᴏᴛ")],
+                    [KeyboardButton("ᴛʀɪᴀʟ"), KeyboardButton("ғɪᴛᴜʀ")],
+                    [KeyboardButton("ᴀʙᴏᴜᴛ")],
+                    [KeyboardButton("ᴄʀᴇᴀᴛᴇ ᴜʙᴏᴛ")],
                 ],
-                [
-                    InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data="informasi_ubot"),
-                ],
-                [   
-                    InlineKeyboardButton("ᴄʀᴇᴀᴛᴇ ᴜʙᴏᴛ", callback_data="buat_ubot"),
-                ]
-            ]
+                resize_keyboard=True,
+                one_time_keyboard=False
+            )
         else:
-            button = [
-                [
-                    InlineKeyboardButton("ꜱᴛᴀʀᴛ ᴄʀᴇᴀᴛɪɴɢ", callback_data="bahan")
+            button = ReplyKeyboardMarkup(
+                keyboard=[
+                    [KeyboardButton("ꜱᴛᴀʀᴛ ᴄʀᴇᴀᴛɪɴɢ")],
+                    [KeyboardButton("ᴜᴘᴅᴀᴛᴇ"), KeyboardButton("ʀᴇsᴛᴀʀᴛ")],
+                    [KeyboardButton("ᴀʙᴏᴜᴛ")],
+                    [KeyboardButton("ʟɪsᴛ ᴜsᴇʀ")],
+                    [KeyboardButton("ғɪᴛᴜʀ")],
                 ],
-                [
-                    InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇ", callback_data="cb_gitpull"),
-                    InlineKeyboardButton("ʀᴇsᴛᴀʀᴛ", callback_data="cb_restart")
-                ],
-                [
-                    InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data="informasi_ubot")
-                ],
-                [
-                    InlineKeyboardButton("ʟɪsᴛ ᴜsᴇʀ", callback_data="cek_ubot")
-                ],
-                [
-                    InlineKeyboardButton("ғɪᴛᴜʀ", callback_data="help_back")
-                ]
-            ]
+                resize_keyboard=True,
+                one_time_keyboard=False
+            )
         return button
 
     def PLUS_MINUS(query, user_id):
@@ -256,51 +244,6 @@ class BTN:
             ],
             [InlineKeyboardButton("ᴄᴏɴꜰɪʀᴍ", callback_data="confirm")],
             [InlineKeyboardButton("ᴄᴀɴᴄᴇʟ", callback_data=f"home {user_id}")],
-        ]
-        return button
-
-    
-    def UBOT(user_id, count):
-        button = [
-            [
-                InlineKeyboardButton(
-                    "ʜᴀᴘᴜs ᴅᴀʀɪ ᴅᴀᴛᴀʙᴀsᴇ",
-                    callback_data=f"del_ubot {int(user_id)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ɢᴇᴛ ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ",
-                    callback_data=f"get_phone {int(count)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ᴄᴇᴋ ᴍᴀsᴀ ᴀᴋᴛɪғ",
-                    callback_data=f"cek_masa_aktif {int(user_id)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ɢᴇᴛ ᴄᴏᴅᴇ ᴏᴛᴘ",
-                    callback_data=f"get_otp {int(count)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ɢᴇᴛ ᴄᴏᴅᴇ 𝟸ғᴀ",
-                    callback_data=f"get_faktor {int(count)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ᴅᴇʟᴇᴛᴇ ᴀᴄᴄᴏᴜɴᴛ", callback_data=f"ub_deak {int(count)}"
-                )
-            ],
-            [
-                InlineKeyboardButton("<", callback_data=f"p_ub {int(count)}"),
-                InlineKeyboardButton(">", callback_data=f"n_ub {int(count)}"),
-            ],
         ]
         return button
 
