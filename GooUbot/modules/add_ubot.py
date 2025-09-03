@@ -21,7 +21,7 @@ async def _(client, message):
 
 @bot.on_message(filters.text & filters.private)
 async def _(client, message):
-    if message.text == "ʙᴀʜᴀɴ":
+    if message.text == "ʙᴜʏ ᴜʙᴏᴛ":
         user_id = message.from_user.id
 
         if user_id in ubot._get_my_id:
