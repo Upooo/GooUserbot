@@ -17,7 +17,7 @@ from GooUbot import *
 async def _(client, message): 
     buttons = BTN.START(message)
     msg = MSG.START(message)
-    return await message.reply(msg, reply_markup=InlineKeyboardMarkup(buttons))
+    return await message.reply(msg, reply_markup=buttons)
 
 @bot.on_message(filters.text & filters.private)
 async def _(client, message):
