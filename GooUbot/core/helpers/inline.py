@@ -110,7 +110,7 @@ class BTN:
                     KeyboardButton("Lihat Fitur")
                 ],
                 [
-                    KeyboardButton("Syarat & Kententuan")
+                    KeyboardButton("Syarat dan Kententuan")
                 ],
                 [
                     KeyboardButton("Informasi Bot"),

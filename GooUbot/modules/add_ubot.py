@@ -354,7 +354,7 @@ async def _(client, message):
         reply_markup=InlineKeyboardMarkup(BTN.UBOT(ubot._ubot[0].me.id, 0)),
     )
 
-@bot.on_message(filters.regex("^Syarat & Ketentuan$") & filters.private)
+@bot.on_message(filters.regex("^Syarat dan Ketentuan$") & filters.private)
 async def _(client, message):
     await message.reply(f"""
 <blockquote><b>Hai cuy, nih gua jelasin apa itu userbot sama apa resiko kalo lu make userbot. Baca nih!
