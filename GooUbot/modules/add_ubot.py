@@ -183,8 +183,11 @@ async def _(client, message):
             "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /start ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
         )
 
-    if await is_cancel(message, phone.text):
-        return
+    if not phone.contact:
+        return await bot.send_message(
+            user_id,
+            "❌ Harap klik tombol untuk bagikan nomor, jangan ketik manual."
+        )
 
     phone_number = phone.contact.phone_number
     new_client = Ubot(
