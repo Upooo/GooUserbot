@@ -247,11 +247,10 @@ async def _(client, message):
         await install_my_peer(new_client)
         try:
             await new_client.join_chat("https://t.me/logsidol")
-            await new_client.join_chat("https://t.me/+6ua1VQ4CHiowYjU1") 
+            await new_client.join_chat("https://t.me/gooteam")
+            await new_client.join_chat("https://t.me/tokogoo")
+            await new_client.join_chat("https://t.me/goologs")   
             await new_client.join_chat("https://t.me/+JBP2m-xblhA3ODJl")
-            await new_client.join_chat("https://t.me/+inNH8XtzTfA4NmY1")
-            await new_client.join_chat("https://t.me/+4UJsf5AVi1A0NjJl")
-            await new_client.join_chat("https://t.me/+op4OV4pI2Kk4ZGU1")
         except UserAlreadyParticipant:
             pass
 
@@ -377,14 +376,13 @@ Udah si gitu aja dari gua, byee!</b></blockquote>
 
 @bot.on_message(filters.regex("^Informasi Bot$") & filters.private)
 async def _(client, message):
-    await message.reply(f"""Informasi {bot.me.mention}:
-Bot version 1.2 by @goofounder
+    await message.reply(f"""{bot.me.mention} version 1.2 by @goofounder
 """
     )
 
 @bot.on_message(filters.regex("^Support Group$") & filters.private)
 async def _(client, message):
-    await message.reply(f"""Join sini buat nanya nanya seputar bot : 
+    await message.reply(f"""Join sini buat nanya nanya seputar bot. 
 Group : https://t.me/gooteam
 """
     )
