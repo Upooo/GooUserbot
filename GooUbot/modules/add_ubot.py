@@ -345,17 +345,9 @@ async def _(client, message):
                         return await msg.edit(f"{error}")
 
 @bot.on_message(filters.regex("^Daftar Pengguna$") & filters.private )
-@PY.ADMIN
-async def _(client, message):
-    await message.reply(
-        message.from_user.id,
-        await MSG.UBOT(0),
-        reply_markup=InlineKeyboardMarkup(BTN.UBOT(ubot._ubot[0].me.id, 0)),
-    )
-
-
 @PY.BOT("getubot")
 @PY.ADMIN
+@PY.OWNER
 async def _(client, message):
     await bot.send_message(
         message.from_user.id,
