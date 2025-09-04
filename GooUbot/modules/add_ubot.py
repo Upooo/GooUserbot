@@ -310,9 +310,7 @@ async def _(client, message):
         importlib.reload(importlib.import_module(f"GooUbot.modules.{mod}"))
 
     SH = await ubot.get_prefix(new_client.me.id)
-    buttons = [
-        [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
-    ]
+    buttons = BTN.START(message)
     text_done = f"""
 <blockquote><b>ʙᴇʀʜᴀꜱɪʟ ᴅɪᴀᴋᴛɪꜰᴋᴀɴ
 ɴᴀᴍᴇ : <a href=tg://user?id={new_client.me.id}>{new_client.me.first_name} {new_client.me.last_name or ''}</a>
@@ -323,8 +321,7 @@ async def _(client, message):
         """
     await bot_msg.edit(
         text_done,
-        disable_web_page_preview=True,
-        reply_markup=InlineKeyboardMarkup(buttons)
+        reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True, one_time_keyboard=True)
     )
     await bash("rm -rf *session*")
     await install_my_peer(new_client)
