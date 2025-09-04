@@ -246,7 +246,7 @@ async def _(client, message):
         else:
             await Tm.edit(f"{ggl}file tidak didukung")
             return
-        media_ = await client.download_media(replied, file_name="IdolUbot/plugins/")
+        media_ = await client.download_media(replied, file_name="GooUbot/plugins/")
     else:
         await Tm.edit(f"{ggl}ꜱilahkan reply ke media foto/gif/ꜱticker!")
         return

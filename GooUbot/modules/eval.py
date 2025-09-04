@@ -45,12 +45,12 @@ async def _(client, message):
 @bot.on_message(filters.regex("^Restart$") & filters.private)
 async def cb_restart(client, message):
     await message.delete()
-    os.system(f"kill -9 {os.getpid()} && python3 -m IdolUbot")
+    os.system(f"kill -9 {os.getpid()} && python3 -m GooUbot")
 
 @bot.on_message(filters.regex("^Update$") & filters.private)
 async def cb_gitpull(client, message):
     await message.delete()
-    os.system(f"kill -9 {os.getpid()} && git pull && python3 -m IdolUbot")
+    os.system(f"kill -9 {os.getpid()} && git pull && python3 -m GooUbot")
 
 async def handle_shutdown(message):
     await message.reply("✅ System berhasil dimatikan", quote=True)
@@ -58,7 +58,7 @@ async def handle_shutdown(message):
 
 async def handle_restart(message):
     await message.reply("✅ System berhasil direstart", quote=True)
-    os.execl(sys.executable, sys.executable, "-m", "IdolUbot")
+    os.execl(sys.executable, sys.executable, "-m", "GooUbot")
 
 async def handle_update(message):
     out = subprocess.check_output(["git", "pull"]).decode("UTF-8")
@@ -68,7 +68,7 @@ async def handle_update(message):
         await send_large_output(message, out)
     else:
         await message.reply(f"```{out}```", quote=True)
-    os.execl(sys.executable, sys.executable, "-m", "IdolUbot")
+    os.execl(sys.executable, sys.executable, "-m", "GooUbot")
 
 async def process_command(message, command):
     result = (await bash(command))[0]
