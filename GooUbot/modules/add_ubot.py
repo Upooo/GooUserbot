@@ -49,6 +49,14 @@ async def _(client, message):
             reply_markup=ReplyKeyboardMarkup(button, resize_keyboard=True, one_time_keyboard=True)
     )
 
+async def is_cancel(callback_query, text):
+    if text.startswith("/cancel"):
+        await bot.send_message(
+            callback_query.from_user.id, "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
+        )
+        return True
+    return False
+
 @bot.on_message(filters.regex("^Pasang Userbot$") & filters.private)
 async def _(client, message):
     user_id = message.from_user.id
