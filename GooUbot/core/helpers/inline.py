@@ -133,14 +133,14 @@ class BTN:
         if not message.from_user.id == OWNER_ID:
             button = [ 
                 [   
-                    KeyboardButton("Create Userbot", callback_data="buat_ubot"),
+                    KeyboardButton("Create Userbot"),
                 ],
                 [
-                    KeyboardButton("Account Check", callback_data="bahan"),
-                    KeyboardButton("Feature Check", callback_data="help_back")
+                    KeyboardButton("Account Check"),
+                    KeyboardButton("Feature Check")
                 ],
                 [
-                    KeyboardButton("Bot Information", callback_data="informasi_ubot"),
+                    KeyboardButton("Bot Information"),
                 ],
                 [
                     KeyboardButton("Support Group")
@@ -149,20 +149,20 @@ class BTN:
         else:
             button = [
                 [
-                    KeyboardButton("Create Userbot", callback_data="bahan")
+                    KeyboardButton("Create Userbot")
                 ],
                 [
-                    KeyboardButton("Update", callback_data="cb_gitpull"),
-                    KeyboardButton("Restart", callback_data="cb_restart")
+                    KeyboardButton("Update"),
+                    KeyboardButton("Restart")
                 ],
                 [
-                    KeyboardButton("Bot Infromation", callback_data="informasi_ubot")
+                    KeyboardButton("Bot Infromation")
                 ],
                 [
-                    KeyboardButton("List Users", callback_data="cek_ubot")
+                    KeyboardButton("List Users")
                 ],
                 [
-                    KeyboardButton("Userbot Feature", callback_data="help_back")
+                    KeyboardButton("Userbot Feature")
                 ]
             ]
         return button
