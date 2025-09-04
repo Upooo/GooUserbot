@@ -11,4 +11,3 @@ from GooUbot.core.helpers.emoji import *
 from GooUbot.core.helpers.dec import *
 from GooUbot.core.helpers.yt_dl import *
 from GooUbot.core.helpers.anu_string import *
-from GooUbot.core.helpers.txt_cmd import *

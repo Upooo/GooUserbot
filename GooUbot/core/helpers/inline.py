@@ -77,13 +77,13 @@ class BTN:
         button = [
             [
                 InlineKeyboardButton(
-                    text="ᴛᴜᴛᴜᴘ",
+                    text="Tutup",
                     callback_data=f"alv_cls {int(get_id[1])} {int(get_id[2])}",
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="ʜᴇʟᴘ",
+                    text="Help",
                     callback_data="help_back",
                 )
             ]
@@ -98,49 +98,22 @@ class BTN:
             [InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇ", callback_data="update")],
         ]
         return button
-        
-    def ADD_EXP(user_id):
-        buttons = InlineKeyboard(row_width=3)
-        keyboard = []
-        for X in range(1, 13):
-            keyboard.append(
-                InlineKeyboardButton(
-                    f"{X} ʙᴜʟᴀɴ ",
-                    callback_data=f"success {user_id} {X}",
-                )
-            )
-        buttons.add(*keyboard)
-        buttons.row(
-            InlineKeyboardButton(
-                "ᴅᴀᴘᴀᴛᴋᴀɴ ᴘʀᴏfɪʟ", callback_data=f"profil {user_id}"
-            )
-        )
-        buttons.row(
-            InlineKeyboardButton(
-                "ᴛᴏʟᴀᴋ ᴘᴇᴍʙᴀʏᴀʀᴀɴ", callback_data=f"failed {user_id}"
-            )
-        )
-        return buttons
-
-    def EXP_UBOT():
-        button = [
-            [InlineKeyboardButton("ʙᴜʏ ᴜʙᴏᴛ", callback_data="bahan")],
-        ]
-        return button
-
     
     def START(message):
         if not message.from_user.id == OWNER_ID:
             button = [ 
                 [   
-                    KeyboardButton("Create Userbot"),
+                    KeyboardButton("Pasang Userbot"),
                 ],
                 [
-                    KeyboardButton("Account Check"),
-                    KeyboardButton("Feature Check")
+                    KeyboardButton("Status Akun"),
+                    KeyboardButton("Lihat Fitur")
                 ],
                 [
-                    KeyboardButton("Bot Information"),
+                    KeyboardButton("Syarat & Kententuan")
+                ],
+                [
+                    KeyboardButton("Informasi Bot"),
                 ],
                 [
                     KeyboardButton("Support Group")
@@ -149,116 +122,23 @@ class BTN:
         else:
             button = [
                 [
-                    KeyboardButton("Create Userbot")
+                    KeyboardButton("Pasang Userbot")
                 ],
                 [
                     KeyboardButton("Update"),
                     KeyboardButton("Restart")
                 ],
                 [
-                    KeyboardButton("Bot Infromation")
+                    KeyboardButton("Informasi Bot")
                 ],
                 [
-                    KeyboardButton("List Users")
+                    KeyboardButton("Daftar Pengguna")
                 ],
                 [
-                    KeyboardButton("Userbot Feature")
+                    KeyboardButton("Lihat Fitur")
                 ]
             ]
         return button
-
-    def PLUS_MINUS(query, user_id):
-        button = [
-            [
-                InlineKeyboardButton(
-                    "-1",
-                    callback_data=f"kurang {query}",
-                ),
-                InlineKeyboardButton(
-                    "+1",
-                    callback_data=f"tambah {query}",
-                ),
-            ],
-            [InlineKeyboardButton("ᴄᴏɴꜰɪʀᴍ", callback_data="confirm")],
-            [InlineKeyboardButton("ᴄᴀɴᴄᴇʟ", callback_data=f"home {user_id}")],
-        ]
-        return button
-
-    
-    def UBOT(user_id, count):
-        button = [
-            [
-                InlineKeyboardButton(
-                    "ʜᴀᴘᴜs ᴅᴀʀɪ ᴅᴀᴛᴀʙᴀsᴇ",
-                    callback_data=f"del_ubot {int(user_id)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ɢᴇᴛ ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ",
-                    callback_data=f"get_phone {int(count)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ᴄᴇᴋ ᴍᴀsᴀ ᴀᴋᴛɪғ",
-                    callback_data=f"cek_masa_aktif {int(user_id)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ɢᴇᴛ ᴄᴏᴅᴇ ᴏᴛᴘ",
-                    callback_data=f"get_otp {int(count)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ɢᴇᴛ ᴄᴏᴅᴇ 𝟸ғᴀ",
-                    callback_data=f"get_faktor {int(count)}",
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    "ᴅᴇʟᴇᴛᴇ ᴀᴄᴄᴏᴜɴᴛ", callback_data=f"ub_deak {int(count)}"
-                )
-            ],
-            [
-                InlineKeyboardButton("<", callback_data=f"p_ub {int(count)}"),
-                InlineKeyboardButton(">", callback_data=f"n_ub {int(count)}"),
-            ],
-        ]
-        return button
-
-    def DEAK(user_id, count):
-        button = [
-            [
-                InlineKeyboardButton(
-                    "ʙᴀᴄᴋ",
-                    callback_data=f"p_ub {int(count)}"
-                ),
-                InlineKeyboardButton(
-                    "ᴄᴏɴꜰɪʀᴍ", callback_data=f"deak_akun {int(count)}",
-                ),
-            ],
-        ]
-        return button
-    def PLUS_MINUS(query, user_id):
-        button = [
-            [
-                InlineKeyboardButton(
-                    "-1",
-                    callback_data=f"kurang {query}",
-                ),
-                InlineKeyboardButton(
-                    "+1",
-                    callback_data=f"tambah {query}",
-                ),
-            ],
-            [InlineKeyboardButton("ᴄᴏɴꜰɪʀᴍ", callback_data="confirm")],
-            [InlineKeyboardButton("ᴄᴀɴᴄᴇʟ", callback_data=f"home {user_id}")],
-        ]
-        return button
-
     
     def UBOT(user_id, count):
         button = [

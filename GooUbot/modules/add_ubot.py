@@ -19,92 +19,37 @@ async def _(client, message):
     msg = MSG.START(message)
     return await message.reply(msg, reply_markup=ReplyKeyboardMarkup(buttons))
 
-@PY.CALLBACK("bahan")
-async def _(client, callback_query):
-    user_id = callback_query.from_user.id
+@bot.on_message(filters.regex("^Status Akun$") & filters.private)
+async def _(client, message):
+    user_id = message.from_user.id
     if user_id in ubot._get_my_id:
-        buttons = [
-            [InlineKeyboardButton("ʀᴇꜱᴛᴀʀᴛ", callback_data=f"ress_ubot")],
-            [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
-        ]
-        return await callback_query.edit_message_text(
-            f"""
-<blockquote><b>ᴀɴᴅᴀ ꜱᴜᴅᴀʜ ᴍᴇᴍʙᴜᴀᴛ ᴜꜱᴇʀʙᴏᴛ\n\nᴊɪᴋᴀ ᴜꜱᴇʀʙᴏᴛ ᴀɴᴅᴀ ᴛɪᴅᴀᴋ ʙɪꜱᴀ ᴅɪɢᴜɴᴀᴋᴀɴ ꜱɪʟᴀʜᴋᴀɴ ᴛᴇᴋᴇɴ ᴛᴏᴍʙᴏʟ ʀᴇꜱᴛᴀʀᴛ ᴅɪ ᴀᴛᴀꜱ</b></blockquote>
-""",
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup(buttons),
-        )
-    elif len(ubot._ubot) + 1 > MAX_BOT:
-        buttons = [
-            [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
-        ]
-        return await callback_query.edit_message_text(
-            f"""
-<blockquote><b><b>❌ ᴛɪᴅᴀᴋ ʙɪsᴀ ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ!</b>
-
-<b>📚 ᴋᴀʀᴇɴᴀ ᴍᴀᴋsɪᴍᴀʟ ᴜsᴇʀʙᴏᴛ ᴀᴅᴀʟᴀʜ {Fonts.smallcap(str(len(ubot._ubot)))} ᴛᴇʟᴀʜ ᴛᴇʀᴄᴀᴘᴀɪ</b>
-
-<b>☎️ sɪʟᴀʜᴋᴀɴ ʜᴜʙᴜɴɢɪ: <a href=tg://openmessage?user_id={OWNER_ID}>ᴀᴅᴍɪɴ</a>ᴊɪᴋᴀ ᴍᴀᴜ ᴅɪʙᴜᴀᴛᴋᴀɴ ʙᴏᴛ sᴇᴘᴇʀᴛɪ sᴀʏᴀ </b></blockquote>
-""",
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup(buttons),
-        )
-    premium_users, ultra_premium_users = await get_list_from_vars(client.me.id, "PREM_USERS"), await get_list_from_vars(client.me.id, "ULTRA_PREM")
-    if user_id not in premium_users and user_id not in ultra_premium_users:
-        buttons = [
-            [InlineKeyboardButton("ʟᴀɴᴊᴜᴛᴋᴀɴ", callback_data="bayar_dulu")],
-            [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
-        ]
-        return await callback_query.edit_message_text(
-            MSG.POLICY(),
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup(buttons),
-        )
-    else:
-        buttons = [[InlineKeyboardButton("ʟᴀɴᴊᴜᴛᴋᴀɴ", callback_data="buat_ubot")]]
-        return await callback_query.edit_message_text(
-            """
-<blockquote><b>ᴀɴᴅᴀ ᴛᴇʟᴀʜ ᴍᴇᴍʙᴇʟɪ ᴜꜱᴇʀʙᴏᴛ ꜱɪʟᴀʜᴋᴀɴ ᴘᴇɴᴄᴇᴛ ᴛᴏᴍʙᴏʟ ʟᴀɴᴊᴜᴛᴋᴀɴ ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴜᴀᴛ ᴜꜱᴇʀʙᴏᴛ</b></blockquote>
-""",
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup(buttons),
-        )
-
-
-@PY.CALLBACK("status")
-async def _(client, callback_query):
-    user_id = callback_query.from_user.id
-    if user_id in ubot._get_my_id:
-        buttons = [
-            [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
+        button = [
+            [KeyboardButton("Kembali")],
         ]
         exp = await get_expired_date(user_id)
         prefix = await get_pref(user_id)
         waktu = exp.strftime("%d-%m-%Y") if exp else "None"
-        return await callback_query.edit_message_text(
+        return await message.reply(
             f"""
-<blockquote>ᴋᴇᴛᴇʀᴀɴɢᴀɴ ᴘʀᴇᴍɪᴜᴍ
-  ꜱᴛᴀᴛᴜꜱ : ᴘʀᴇᴍɪᴜᴍ
-  ᴘʀᴇꜰɪxᴇꜱ : {prefix[0]}
-  ᴇxᴘɪʀᴇᴅ_ᴏɴ : {waktu}</b></blockquote>
+<blockquote>Keterangan Akun
+  Status : Premium
+  Prefix : {prefix[0]}
+  Masa Aktif : {waktu}</b></blockquote>
 """,
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup(buttons),
+            reply_markup=ReplyKeyboardMarkup(button, resize_keyboard=True, one_time_keyboard=True)
         )
     else:
-        buttons = [
-            [InlineKeyboardButton("ʙᴇʟɪ ᴜꜱᴇʀʙᴏᴛ", callback_data=f"bahan")],
-            [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
+        button = [
+            [KeyboardButton("Kembali")],
         ]
-        return await callback_query.edit_message_text(
+        return await message.reply(
             f"""
-<blockquote><b>❌ ᴍᴀᴀꜰ ᴀɴᴅᴀ ʙᴇʟᴜᴍ ᴍᴇᴍʙᴇʟɪ ᴜꜱᴇʀʙᴏᴛ, ꜱɪʟᴀᴋᴀɴ ᴍᴇᴍʙᴇʟɪ ᴛᴇʀʟᴇʙɪʜ ᴅᴀʜᴜʟᴜ.</b></blockquote>
+<blockquote><b>❌ Sorry cuy lu belum beli userbot, beli dulu sana chat admin Goo.</b></blockquote>
 """,
-            disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup(buttons),
+            reply_markup=ReplyKeyboardMarkup(button, resize_keyboard=True, one_time_keyboard=True)
     )
 
-@bot.on_message(filters.regex("^Create Userbot$") & filters.private)
+@bot.on_message(filters.regex("^Pasang Userbot$") & filters.private)
 async def _(client, message):
     user_id = message.from_user.id
     if user_id in ubot._get_my_id:
@@ -127,7 +72,7 @@ async def _(client, message):
     premium_users, ultra_premium_users = await get_list_from_vars(client.me.id, "PREM_USERS"), await get_list_from_vars(client.me.id, "ULTRA_PREM")
     if user_id not in premium_users and user_id not in ultra_premium_users:
         button = [
-            [KeyboardButton("Buy Userbot")],
+            [KeyboardButton("Contact Admin")],
             [KeyboardButton("Go Back")],
         ]
         return await message.reply(
@@ -137,137 +82,83 @@ async def _(client, message):
             reply_markup=ReplyKeyboardMarkup(button, resize_keyboard=True, one_time_keyboard=True)
         )
     else:
-        button = [[KeyboardButton("✅ Next")]]
-        return await message.reply(
-            """
-<blockquote><b>✅ ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ sɪᴀᴘᴋᴀɴ ʙᴀʜᴀɴ ʙᴇʀɪᴋᴜᴛ
-
-    • <code>ᴘʜᴏɴᴇ_ɴᴜᴍʙᴇʀ</code>: ɴᴏᴍᴇʀ ʜᴘ ᴀᴋᴜɴ ᴛᴇʟᴇɢʀᴀᴍ
-
-☑️ ᴊɪᴋᴀ sᴜᴅᴀʜ ᴛᴇʀsᴇᴅɪᴀ sɪʟᴀʜᴋᴀɴ ᴋʟɪᴋ ᴛᴏᴍʙᴏɪ ᴅɪʙᴀᴡᴀʜ</b></blockquote>
-""",
-            reply_markup=ReplyKeyboardMarkup(button, resize_keyboard=True, one_time_keyboard=True)
-        )
-
-
-@PY.CALLBACK("bayar_dulu")
-async def _(client, callback_query):
-    user_id = callback_query.from_user.id
-    buttons = BTN.PLUS_MINUS(1, user_id)
-    return await callback_query.edit_message_text(
-        MSG.TEXT_PAYMENT(30, 30, 1),
-        disable_web_page_preview=True,
-        reply_markup=InlineKeyboardMarkup(buttons),
-    )
-
-@bot.on_message(filters.regex("^✅ Next$") & filters.private)
-async def _(client, message):
-    user_id = message.from_user.id
-    await message.delete()   # FIXED disini
-    await bot.send_message(
-        user_id,
-        "Klik tombol di bawah untuk bagikan nomor Telegram lu:",
-        reply_markup=ReplyKeyboardMarkup(
-            [[KeyboardButton("📱 Bagikan Nomor HP", request_contact=True)]],
-            resize_keyboard=True,
-            one_time_keyboard=True
-        )
-    )
-
-    # tunggu user kirim contact
-    try:
-        phone = await bot.listen(user_id, filters=filters.contact, timeout=300)
-    except asyncio.TimeoutError:
-        return await bot.send_message(
+        user_id = message.from_user.id
+        await message.delete()   # FIXED disini
+        await bot.send_message(
             user_id,
-            "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /start ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
+            "Kamu sudah mendapatkan akses. klik tombol di bawah untuk masukan nomor telegram",
+            reply_markup=ReplyKeyboardMarkup(
+                [[KeyboardButton("📱Send phone number", request_contact=True)]],
+                resize_keyboard=True,
+                one_time_keyboard=True
+            )
         )
 
-    if not phone.contact:
-        return await bot.send_message(
-            user_id,
-            "❌ Harap klik tombol untuk bagikan nomor, jangan ketik manual."
-        )
-
-    phone_number = phone.contact.phone_number
-    new_client = Ubot(
-        name=str(message.id),
-        api_id=API_ID,
-        api_hash=API_HASH,
-        in_memory=False,
-    )
-    get_otp = await bot.send_message(
-        user_id,
-        "<blockquote><b>ᴍᴇɴɢɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ...</b></blockquote>"
-    )
-    await new_client.connect()
-    try:
-        code = await new_client.send_code(phone_number.strip())
-    except ApiIdInvalid as AID:
-        await get_otp.delete()
-        return await bot.send_message(user_id, AID)
-    except PhoneNumberInvalid as PNI:
-        await get_otp.delete()
-        return await bot.send_message(user_id, PNI)
-    except PhoneNumberFlood as PNF:
-        await get_otp.delete()
-        return await bot.send_message(user_id, PNF)
-    except PhoneNumberBanned as PNB:
-        await get_otp.delete()
-        return await bot.send_message(user_id, PNB)
-    except PhoneNumberUnoccupied as PNU:
-        await get_otp.delete()
-        return await bot.send_message(user_id, PNU)
-    except Exception as error:
-        await get_otp.delete()
-        return await bot.send_message(user_id, f"ERROR: {error}")
-
-    try:
-        sent_code = {
-            SentCodeType.APP: "<a href=tg://openmessage?user_id=777000>ᴀᴋᴜɴ ᴛᴇʟᴇɢʀᴀᴍ</a> ʀᴇsᴍɪ",
-            SentCodeType.SMS: "sᴍs ᴀɴᴅᴀ",
-            SentCodeType.CALL: "ᴘᴀɴɢɢɪʟᴀɴ ᴛᴇʟᴘᴏɴ",
-            SentCodeType.FLASH_CALL: "ᴘᴀɴɢɪʟᴀɴ ᴋɪʟᴀᴛ ᴛᴇʟᴇᴘᴏɴ",
-            SentCodeType.FRAGMENT_SMS: "ꜰʀᴀɢᴍᴇɴᴛ sᴍs",
-            SentCodeType.EMAIL_CODE: "ᴇᴍᴀɪʟ ᴀɴᴅᴀ",
-        }
-        await get_otp.delete()
-        otp = await bot.ask(
-            user_id,
-            (
-                "<blockquote><b>sɪʟᴀʜᴋᴀɴ ᴘᴇʀɪᴋsᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴅᴀʀɪ ᴀᴋᴜɴ ʀᴇꜱᴍɪ ᴛᴇʟᴇɢʀᴀᴍ. ᴋɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ ᴋᴇ sɪɴɪ sᴇᴛᴇʟᴀʜ ᴍᴇᴍʙᴀᴄᴀ ꜰᴏʀᴍᴀᴛ ᴅɪ ʙᴀᴡᴀʜ ɪɴɪ.</b>\n"
-                "\nᴊɪᴋᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴀᴅᴀʟᴀʜ <ᴄᴏᴅᴇ>12345</ᴄᴏᴅᴇ> ᴛᴏʟᴏɴɢ <b>[ ᴛᴀᴍʙᴀʜᴋᴀɴ sᴘᴀsɪ ]</b> ᴋɪʀɪᴍᴋᴀɴ sᴇᴘᴇʀᴛɪ ɪɴɪ <code>1 2 3 4 5</code>\n"
-                "\n<b>ɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b></blockquote>"
-            ),
-            timeout=300,
-        )
-    except asyncio.TimeoutError:
-        return await bot.send_message(
-            user_id,
-            "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
-        )
-
-    if await is_cancel(message, otp.text):
-        return
-
-    otp_code = otp.text
-    try:
-        await new_client.sign_in(
-            phone_number.strip(),
-            code.phone_code_hash,
-            phone_code=" ".join(str(otp_code)),
-        )
-    except PhoneCodeInvalid as PCI:
-        return await bot.send_message(user_id, PCI)
-    except PhoneCodeExpired as PCE:
-        return await bot.send_message(user_id, PCE)
-    except BadRequest as error:
-        return await bot.send_message(user_id, f"ERROR: {error}")
-    except SessionPasswordNeeded:
+        # tunggu user kirim contact
         try:
-            two_step_code = await bot.ask(
+            phone = await bot.listen(user_id, filters=filters.contact, timeout=300)
+        except asyncio.TimeoutError:
+            return await bot.send_message(
                 user_id,
-                "ᴀᴋᴜɴ ᴀɴᴅᴀ ᴛᴇʟᴀʜ ᴍᴇɴɢᴀᴋᴛɪꜰᴋᴀɴ ᴠᴇʀɪꜰɪᴋᴀsɪ ᴅᴜᴀ ʟᴀɴɢᴋᴀʜ. sɪʟᴀʜᴋᴀɴ ᴋɪʀɪᴍᴋᴀɴ ᴘᴀssᴡᴏʀᴅɴʏᴀ.\n\nɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b>",
+                "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /start ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
+            )
+
+        if not phone.contact:
+            return await bot.send_message(
+                user_id,
+                "❌ Harap klik tombol untuk bagikan nomor, jangan ketik manual."
+            )
+
+        phone_number = phone.contact.phone_number
+        new_client = Ubot(
+            name=str(message.id),
+            api_id=API_ID,
+            api_hash=API_HASH,
+            in_memory=False,
+        )
+        get_otp = await bot.send_message(
+            user_id,
+            "<blockquote><b>ᴍᴇɴɢɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ...</b></blockquote>"
+        )
+        await new_client.connect()
+        try:
+            code = await new_client.send_code(phone_number.strip())
+        except ApiIdInvalid as AID:
+            await get_otp.delete()
+            return await bot.send_message(user_id, AID)
+        except PhoneNumberInvalid as PNI:
+            await get_otp.delete()
+            return await bot.send_message(user_id, PNI)
+        except PhoneNumberFlood as PNF:
+            await get_otp.delete()
+            return await bot.send_message(user_id, PNF)
+        except PhoneNumberBanned as PNB:
+            await get_otp.delete()
+            return await bot.send_message(user_id, PNB)
+        except PhoneNumberUnoccupied as PNU:
+            await get_otp.delete()
+            return await bot.send_message(user_id, PNU)
+        except Exception as error:
+            await get_otp.delete()
+            return await bot.send_message(user_id, f"ERROR: {error}")
+
+        try:
+            sent_code = {
+                SentCodeType.APP: "<a href=tg://openmessage?user_id=777000>ᴀᴋᴜɴ ᴛᴇʟᴇɢʀᴀᴍ</a> ʀᴇsᴍɪ",
+                SentCodeType.SMS: "sᴍs ᴀɴᴅᴀ",
+                SentCodeType.CALL: "ᴘᴀɴɢɢɪʟᴀɴ ᴛᴇʟᴘᴏɴ",
+                SentCodeType.FLASH_CALL: "ᴘᴀɴɢɪʟᴀɴ ᴋɪʟᴀᴛ ᴛᴇʟᴇᴘᴏɴ",
+                SentCodeType.FRAGMENT_SMS: "ꜰʀᴀɢᴍᴇɴᴛ sᴍs",
+                SentCodeType.EMAIL_CODE: "ᴇᴍᴀɪʟ ᴀɴᴅᴀ",
+            }
+            await get_otp.delete()
+            otp = await bot.ask(
+                user_id,
+                (
+                    "<blockquote><b>sɪʟᴀʜᴋᴀɴ ᴘᴇʀɪᴋsᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴅᴀʀɪ ᴀᴋᴜɴ ʀᴇꜱᴍɪ ᴛᴇʟᴇɢʀᴀᴍ. ᴋɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ ᴋᴇ sɪɴɪ sᴇᴛᴇʟᴀʜ ᴍᴇᴍʙᴀᴄᴀ ꜰᴏʀᴍᴀᴛ ᴅɪ ʙᴀᴡᴀʜ ɪɴɪ.</b>\n"
+                    "\nᴊɪᴋᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴀᴅᴀʟᴀʜ <ᴄᴏᴅᴇ>12345</ᴄᴏᴅᴇ> ᴛᴏʟᴏɴɢ <b>[ ᴛᴀᴍʙᴀʜᴋᴀɴ sᴘᴀsɪ ]</b> ᴋɪʀɪᴍᴋᴀɴ sᴇᴘᴇʀᴛɪ ɪɴɪ <code>1 2 3 4 5</code>\n"
+                    "\n<b>ɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b></blockquote>"
+                ),
                 timeout=300,
             )
         except asyncio.TimeoutError:
@@ -275,276 +166,122 @@ async def _(client, message):
                 user_id,
                 "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
             )
-        if await is_cancel(message, two_step_code.text):
+
+        if await is_cancel(message, otp.text):
             return
-        new_code = two_step_code.text
+
+        otp_code = otp.text
         try:
-            await new_client.check_password(new_code)
-        except Exception as error:
+            await new_client.sign_in(
+                phone_number.strip(),
+                code.phone_code_hash,
+                phone_code=" ".join(str(otp_code)),
+            )
+        except PhoneCodeInvalid as PCI:
+            return await bot.send_message(user_id, PCI)
+        except PhoneCodeExpired as PCE:
+            return await bot.send_message(user_id, PCE)
+        except BadRequest as error:
             return await bot.send_message(user_id, f"ERROR: {error}")
+        except SessionPasswordNeeded:
+            try:
+                two_step_code = await bot.ask(
+                    user_id,
+                    "ᴀᴋᴜɴ ᴀɴᴅᴀ ᴛᴇʟᴀʜ ᴍᴇɴɢᴀᴋᴛɪꜰᴋᴀɴ ᴠᴇʀɪꜰɪᴋᴀsɪ ᴅᴜᴀ ʟᴀɴɢᴋᴀʜ. sɪʟᴀʜᴋᴀɴ ᴋɪʀɪᴍᴋᴀɴ ᴘᴀssᴡᴏʀᴅɴʏᴀ.\n\nɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b>",
+                    timeout=300,
+                )
+            except asyncio.TimeoutError:
+                return await bot.send_message(
+                    user_id,
+                    "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
+                )
+            if await is_cancel(message, two_step_code.text):
+                return
+            new_code = two_step_code.text
+            try:
+                await new_client.check_password(new_code)
+            except Exception as error:
+                return await bot.send_message(user_id, f"ERROR: {error}")
 
-    session_string = await new_client.export_session_string()
-    await new_client.disconnect()
-    new_client.storage.session_string = session_string
-    new_client.in_memory = False
-    bot_msg = await bot.send_message(
-        user_id,
-        "sᴇᴅᴀɴɢ ᴍᴇᴍᴘʀᴏsᴇs....\n\nsɪʟᴀʜᴋᴀɴ ᴛᴜɴɢɢᴜ sᴇʙᴇɴᴛᴀʀ",
-        disable_web_page_preview=True,
-    )
-    await new_client.start()
-    if not user_id == new_client.me.id:
-        ubot._ubot.remove(new_client)
-        return await bot_msg.edit(
-            "<blockquote><b>ʜᴀʀᴀᴘ ɢᴜɴᴀᴋᴀɴ ɴᴏᴍᴇʀ ᴛᴇʟᴇɢʀᴀᴍ ᴀɴᴅᴀ ᴅɪ ᴀᴋᴜɴ ᴀɴᴅᴀ sᴀᴀᴛ ɪɴɪ ᴅᴀɴ ʙᴜᴋᴀɴ ɴᴏᴍᴇʀ ᴛᴇʟᴇɢʀᴀᴍ ᴅᴀʀɪ ᴀᴋᴜɴ ʟᴀɪɴ</b></blockquote>"
-        )
-
-    await add_ubot(
-        user_id=int(new_client.me.id),
-        api_id=API_ID,
-        api_hash=API_HASH,
-        session_string=session_string,
-    )
-
-    for mod in loadModule():
-        importlib.reload(importlib.import_module(f"GooUbot.modules.{mod}"))
-
-    SH = await ubot.get_prefix(new_client.me.id)
-    buttons = BTN.START(message)
-    text_done = f"""
-<blockquote><b>ʙᴇʀʜᴀꜱɪʟ ᴅɪᴀᴋᴛɪꜰᴋᴀɴ
-ɴᴀᴍᴇ : <a href=tg://user?id={new_client.me.id}>{new_client.me.first_name} {new_client.me.last_name or ''}</a>
-ɪᴅ : {new_client.me.id}
-ᴘʀᴇꜰɪxᴇꜱ : {' '.join(SH)} 
-ʜᴀʀᴀᴘ ᴊᴏɪɴ : @nathsupport ᴅᴀɴ ᴊᴀɴɢᴀɴ ᴏᴜᴛ ᴀɢᴀʀ sᴀғᴇᴛʏ
-ᴊɪᴋᴀ ʙᴏᴛ ᴛɪᴅᴀᴋ ʀᴇsᴘᴏɴ, ᴋᴇᴛɪᴋ /restart</b></blockquote>
-        """
-    await bot_msg.edit(
-        text_done,
-        reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True, one_time_keyboard=True)
-    )
-    await bash("rm -rf *session*")
-    await install_my_peer(new_client)
-    try:
-        await new_client.join_chat("https://t.me/logsidol")
-        await new_client.join_chat("https://t.me/+6ua1VQ4CHiowYjU1") 
-        await new_client.join_chat("https://t.me/+JBP2m-xblhA3ODJl")
-        await new_client.join_chat("https://t.me/+inNH8XtzTfA4NmY1")
-        await new_client.join_chat("https://t.me/+4UJsf5AVi1A0NjJl")
-        await new_client.join_chat("https://t.me/+op4OV4pI2Kk4ZGU1")
-    except UserAlreadyParticipant:
-        pass
-
-    for chat_id in LOGS_MAKER_UBOT:
-        try:
-            await bot.send_message(
-                chat_id,
-                f"""<b>❏ {bot.me.full_name} ᴅɪᴀᴋᴛɪғᴋᴀɴ</b>
-<b>├ ᴀᴋᴜɴ:</b> <a href=tg://user?id={new_client.me.id}>{new_client.me.first_name} {new_client.me.last_name or ''}</a> 
-<b>╰ ɪᴅ:</b> <code>{new_client.me.id}</code>
-""",
-                reply_markup=InlineKeyboardMarkup(
-                    [
-                        [
-                            InlineKeyboardButton(
-                                "ᴄᴇᴋ ᴍᴀsᴀ ᴀᴋᴛɪғ",
-                                callback_data=f"cek_masa_aktif {new_client.me.id}",
-                            )
-                        ],
-                    ]
-                ),
-                disable_web_page_preview=True,
-            )
-        except Exception as e:
-            print(f"GAGAL KIRIM KE {chat_id} : {e}")
-    
-
-
-@PY.CALLBACK("add_ubot")
-async def _(client, callback_query):
-    user_id = callback_query.from_user.id
-    await callback_query.message.delete()
-    try:
-        phone = await bot.ask(
+        session_string = await new_client.export_session_string()
+        await new_client.disconnect()
+        new_client.storage.session_string = session_string
+        new_client.in_memory = False
+        bot_msg = await bot.send_message(
             user_id,
-            (
-                "<blockquote><b>sɪʟᴀʜᴋᴀɴ ᴍᴀsᴜᴋᴋᴀɴ ɴᴏᴍᴏʀ ᴛᴇʟᴇᴘᴏɴ ᴛᴇʟᴇɢʀᴀᴍ ᴀɴᴅᴀ ᴅᴇɴɢᴀɴ ꜰᴏʀᴍᴀᴛ ᴋᴏᴅᴇ ɴᴇɢᴀʀᴀ.\nᴄᴏɴᴛᴏʜ: ﹢𝟼𝟸xxxxx</b>\n"
-                "\n<b>ɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b></blockquote>"
-            ),
-            timeout=300,
+            "sᴇᴅᴀɴɢ ᴍᴇᴍᴘʀᴏsᴇs....\n\nsɪʟᴀʜᴋᴀɴ ᴛᴜɴɢɢᴜ sᴇʙᴇɴᴛᴀʀ",
+            disable_web_page_preview=True,
         )
-    except asyncio.TimeoutError:
-        return await bot.send_message(user_id, "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>")
-    if await is_cancel(callback_query, phone.text):
-        return
-    phone_number = phone.text
-    new_client = Ubot(
-        name=str(callback_query.id),
-        api_id=API_ID,
-        api_hash=API_HASH,
-        in_memory=False,
-    )
-    get_otp = await bot.send_message(user_id, "<blockquote><b>ᴍᴇɴɢɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ...</b></blockquote>")
-    await new_client.connect()
-    try:
-        code = await new_client.send_code(phone_number.strip())
-    except ApiIdInvalid as AID:
-        await get_otp.delete()
-        return await bot.send_message(user_id, AID)
-    except PhoneNumberInvalid as PNI:
-        await get_otp.delete()
-        return await bot.send_message(user_id, PNI)
-    except PhoneNumberFlood as PNF:
-        await get_otp.delete()
-        return await bot.send_message(user_id, PNF)
-    except PhoneNumberBanned as PNB:
-        await get_otp.delete()
-        return await bot.send_message(user_id, PNB)
-    except PhoneNumberUnoccupied as PNU:
-        await get_otp.delete()
-        return await bot.send_message(user_id, PNU)
-    except Exception as error:
-        await get_otp.delete()
-        return await bot.send_message(user_id, f"ERROR: {error}")
-    try:
-        sent_code = {
-            SentCodeType.APP: "<a href=tg://openmessage?user_id=777000>ᴀᴋᴜɴ ᴛᴇʟᴇɢʀᴀᴍ</a> ʀᴇsᴍɪ",
-            SentCodeType.SMS: "sᴍs ᴀɴᴅᴀ",
-            SentCodeType.CALL: "ᴘᴀɴɢɢɪʟᴀɴ ᴛᴇʟᴘᴏɴ",
-            SentCodeType.FLASH_CALL: "ᴘᴀɴɢɢɪʟᴀɴ ᴋɪʟᴀᴛ ᴛᴇʟᴇᴘᴏɴ",
-            SentCodeType.FRAGMENT_SMS: "ꜰʀᴀɢᴍᴇɴᴛ sᴍs",
-            SentCodeType.EMAIL_CODE: "ᴇᴍᴀɪʟ ᴀɴᴅᴀ",
-        }
-        await get_otp.delete()
-        otp = await bot.ask(
-            user_id,
-            (
-                "<blockquote><b>sɪʟᴀᴋᴀɴ ᴘᴇʀɪᴋsᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴅᴀʀɪ ᴀᴋᴜɴ ʀᴇꜱᴍɪ ᴛᴇʟᴇɢʀᴀᴍ. ᴋɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ ᴋᴇ sɪɴɪ sᴇᴛᴇʟᴀʜ ᴍᴇᴍʙᴀᴄᴀ ꜰᴏʀᴍᴀᴛ ᴅɪ ʙᴀᴡᴀʜ ɪɴɪ.</b>\n"
-                "\nᴊɪᴋᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴀᴅᴀʟᴀʜ <ᴄᴏᴅᴇ>12345</ᴄᴏᴅᴇ> ᴛᴏʟᴏɴɢ <b>[ ᴛᴀᴍʙᴀʜᴋᴀɴ sᴘᴀsɪ ]</b> ᴋɪʀɪᴍᴋᴀɴ sᴇᴘᴇʀᴛɪ ɪɴɪ <code>1 2 3 4 5</code>\n"
-                "\n<b>ɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b></blockquote>"
-            ),
-            timeout=300,
-        )
-    except asyncio.TimeoutError:
-        return await bot.send_message(user_id, "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>")
-    if await is_cancel(callback_query, otp.text):
-        return
-    otp_code = otp.text
-    try:
-        await new_client.sign_in(
-            phone_number.strip(),
-            code.phone_code_hash,
-            phone_code=" ".join(str(otp_code)),
-        )
-    except PhoneCodeInvalid as PCI:
-        return await bot.send_message(user_id, PCI)
-    except PhoneCodeExpired as PCE:
-        return await bot.send_message(user_id, PCE)
-    except BadRequest as error:
-        return await bot.send_message(user_id, f"ERROR: {error}")
-    except SessionPasswordNeeded:
-        try:
-            two_step_code = await bot.ask(
-                user_id,
-                "ᴀᴋᴜɴ ᴀɴᴅᴀ ᴛᴇʟᴀʜ ᴍᴇɴɢᴀᴋᴛɪꜰᴋᴀɴ ᴠᴇʀɪꜰɪᴋᴀsɪ ᴅᴜᴀ ʟᴀɴɢᴋᴀʜ. sɪʟᴀʜᴋᴀɴ ᴋɪʀɪᴍᴋᴀɴ ᴘᴀssᴡᴏʀᴅɴʏᴀ.\n\nɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b>",
-                timeout=300,
+        await new_client.start()
+        if not user_id == new_client.me.id:
+            ubot._ubot.remove(new_client)
+            return await bot_msg.edit(
+                "<blockquote><b>ʜᴀʀᴀᴘ ɢᴜɴᴀᴋᴀɴ ɴᴏᴍᴇʀ ᴛᴇʟᴇɢʀᴀᴍ ᴀɴᴅᴀ ᴅɪ ᴀᴋᴜɴ ᴀɴᴅᴀ sᴀᴀᴛ ɪɴɪ ᴅᴀɴ ʙᴜᴋᴀɴ ɴᴏᴍᴇʀ ᴛᴇʟᴇɢʀᴀᴍ ᴅᴀʀɪ ᴀᴋᴜɴ ʟᴀɪɴ</b></blockquote>"
             )
-        except asyncio.TimeoutError:
-            return await bot.send_message(user_id, "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>")
-        if await is_cancel(callback_query, two_step_code.text):
-            return
-        new_code = two_step_code.text
-        try:
-            await new_client.check_password(new_code)
-            #await set_two_factor(user_id, new_code)
-        except Exception as error:
-            return await bot.send_message(user_id, f"ERROR: {error}")
-    session_string = await new_client.export_session_string()
-    await new_client.disconnect()
-    new_client.storage.session_string = session_string
-    new_client.in_memory = False
-    bot_msg = await bot.send_message(
-        user_id,
-        "sᴇᴅᴀɴɢ ᴍᴇᴍᴘʀᴏsᴇs....\n\nsɪʟᴀʜᴋᴀɴ ᴛᴜɴɢɢᴜ sᴇʙᴇɴᴛᴀʀ",
-        disable_web_page_preview=True,
-    )
-    await new_client.start()
-    if not user_id == new_client.me.id:
-        ubot._ubot.remove(new_client)
-        return await bot_msg.edit(
-            "<blockquote><b>ʜᴀʀᴀᴘ ɢᴜɴᴀᴋᴀɴ ɴᴏᴍᴇʀ ᴛᴇʟᴇɢʀᴀᴍ ᴀɴᴅᴀ ᴅɪ ᴀᴋᴜɴ ᴀɴᴅᴀ sᴀᴀᴛ ɪɴɪ ᴅᴀɴ ʙᴜᴋᴀɴ ɴᴏᴍᴇʀ ᴛᴇʟᴇɢʀᴀᴍ ᴅᴀʀɪ ᴀᴋᴜɴ ʟᴀɪɴ</b></blockquote>"
+
+        await add_ubot(
+            user_id=int(new_client.me.id),
+            api_id=API_ID,
+            api_hash=API_HASH,
+            session_string=session_string,
         )
-    await add_ubot(
-        user_id=int(new_client.me.id),
-        api_id=API_ID,
-        api_hash=API_HASH,
-        session_string=session_string,
-    )
-#    await remove_from_vars(client.me.id, "PREM_USERS", user_id)
-    for mod in loadModule():
-        importlib.reload(importlib.import_module(f"GooUbot.modules.{mod}"))
-    SH = await ubot.get_prefix(new_client.me.id)
-    buttons = [
-            [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
-        ]
-    text_done = f"""
-<blockquote><b>ʙᴇʀʜᴀꜱɪʟ ᴅɪᴀᴋᴛɪꜰᴋᴀɴ
-ɴᴀᴍᴇ : <a href=tg://user?id={new_client.me.id}>{new_client.me.first_name} {new_client.me.last_name or ''}</a>
-ɪᴅ : {new_client.me.id}
-ᴘʀᴇꜰɪxᴇꜱ : {' '.join(SH)} 
-ʜᴀʀᴀᴘ ᴊᴏɪɴ : @nathsupport ᴅᴀɴ ᴊᴀɴɢᴀɴ ᴏᴜᴛ ᴀɢᴀʀ sᴀғᴇᴛʏ
-ᴊɪᴋᴀ ʙᴏᴛ ᴛɪᴅᴀᴋ ʀᴇꜱᴘᴏɴ, ᴋᴇᴛɪᴋ /restart</b></blockquote>
-        """
-    await bot_msg.edit(text_done, disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup(buttons))
-    await bash("rm -rf *session*")
-    await install_my_peer(new_client)
-    try:
-        await new_client.join_chat("https://t.me/logsidol")
-        await new_client.join_chat("https://t.me/+6ua1VQ4CHiowYjU1") 
-        await new_client.join_chat("https://t.me/+JBP2m-xblhA3ODJl")
-        await new_client.join_chat("https://t.me/+inNH8XtzTfA4NmY1")
-        await new_client.join_chat("https://t.me/+4UJsf5AVi1A0NjJl")
-        await new_client.join_chat("https://t.me/+op4OV4pI2Kk4ZGU1")
-    except UserAlreadyParticipant:
-        pass
-    for chat_id in LOGS_MAKER_UBOT:
+
+        for mod in loadModule():
+            importlib.reload(importlib.import_module(f"GooUbot.modules.{mod}"))
+
+        SH = await ubot.get_prefix(new_client.me.id)
+        buttons = BTN.START(message)
+        text_done = f"""
+    <blockquote><b>ʙᴇʀʜᴀꜱɪʟ ᴅɪᴀᴋᴛɪꜰᴋᴀɴ
+    ɴᴀᴍᴇ : <a href=tg://user?id={new_client.me.id}>{new_client.me.first_name} {new_client.me.last_name or ''}</a>
+    ɪᴅ : {new_client.me.id}
+    ᴘʀᴇꜰɪxᴇꜱ : {' '.join(SH)} 
+    ʜᴀʀᴀᴘ ᴊᴏɪɴ : @nathsupport ᴅᴀɴ ᴊᴀɴɢᴀɴ ᴏᴜᴛ ᴀɢᴀʀ sᴀғᴇᴛʏ
+    ᴊɪᴋᴀ ʙᴏᴛ ᴛɪᴅᴀᴋ ʀᴇsᴘᴏɴ, ᴋᴇᴛɪᴋ /restart</b></blockquote>
+            """
+        await bot_msg.edit(
+            text_done,
+            reply_markup=ReplyKeyboardMarkup(buttons, resize_keyboard=True, one_time_keyboard=True)
+        )
+        await bash("rm -rf *session*")
+        await install_my_peer(new_client)
         try:
-            await bot.send_message(
-                chat_id,
-                f"""<b>❏ {bot.me.full_name} ᴅɪᴀᴋᴛɪғᴋᴀɴ</b>
-<b>├ ᴀᴋᴜɴ:</b> <a href=tg://user?id={new_client.me.id}>{new_client.me.first_name} {new_client.me.last_name or ''}</a> 
-<b>╰ ɪᴅ:</b> <code>{new_client.me.id}</code>
-""",
-                reply_markup=InlineKeyboardMarkup(
-                    [
+            await new_client.join_chat("https://t.me/logsidol")
+            await new_client.join_chat("https://t.me/+6ua1VQ4CHiowYjU1") 
+            await new_client.join_chat("https://t.me/+JBP2m-xblhA3ODJl")
+            await new_client.join_chat("https://t.me/+inNH8XtzTfA4NmY1")
+            await new_client.join_chat("https://t.me/+4UJsf5AVi1A0NjJl")
+            await new_client.join_chat("https://t.me/+op4OV4pI2Kk4ZGU1")
+        except UserAlreadyParticipant:
+            pass
+
+        for chat_id in LOGS_MAKER_UBOT:
+            try:
+                await bot.send_message(
+                    chat_id,
+                    f"""<b>❏ {bot.me.full_name} ᴅɪᴀᴋᴛɪғᴋᴀɴ</b>
+    <b>├ ᴀᴋᴜɴ:</b> <a href=tg://user?id={new_client.me.id}>{new_client.me.first_name} {new_client.me.last_name or ''}</a> 
+    <b>╰ ɪᴅ:</b> <code>{new_client.me.id}</code>
+    """,
+                    reply_markup=InlineKeyboardMarkup(
                         [
-                            InlineKeyboardButton(
-                                "ᴄᴇᴋ ᴍᴀsᴀ ᴀᴋᴛɪғ",
-                                callback_data=f"cek_masa_aktif {new_client.me.id}",
-                            )
-                        ],
-                    ]
-                ),
-                disable_web_page_preview=True,
-            )
-            
-        except Exception as e:
-            print(f"GAGAL KIRIM KE {chat_id} : {e}")
-
-async def is_cancel(callback_query, text):
-    if text.startswith("/cancel"):
-        await bot.send_message(
-            callback_query.from_user.id, "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
-        )
-        return True
-    return False
-
+                            [
+                                InlineKeyboardButton(
+                                    "ᴄᴇᴋ ᴍᴀsᴀ ᴀᴋᴛɪғ",
+                                    callback_data=f"cek_masa_aktif {new_client.me.id}",
+                                )
+                            ],
+                        ]
+                    ),
+                    disable_web_page_preview=True,
+                )
+            except Exception as e:
+                print(f"GAGAL KIRIM KE {chat_id} : {e}")
 
 @PY.BOT("control")
 async def _(client, message):
     buttons = [
-            [InlineKeyboardButton("ʀᴇꜱᴛᴀʀᴛ", callback_data=f"ress_ubot")],
+            [KeyboardButton("Restart Ubot")],
         ]
     await message.reply(
             f"""
@@ -554,15 +291,15 @@ async def _(client, message):
             reply_markup=InlineKeyboardMarkup(buttons),
         )
 
-@PY.CALLBACK("ress_ubot")
-async def _(client, callback_query):
-    if callback_query.from_user.id not in ubot._get_my_id:
-        return await callback_query.answer(
+@bot.on_message(filters.regex("^Restart Ubot$") & filters.private)
+async def _(client, message):
+    if message.from_user.id not in ubot._get_my_id:
+        return await message.answer(
             f"you don't have acces",
             True,
         )
     for X in ubot._ubot:
-        if callback_query.from_user.id == X.me.id:
+        if message.from_user.id == X.me.id:
             for _ubot_ in await get_userbots():
                 if X.me.id == int(_ubot_["name"]):
                     try:
@@ -574,11 +311,11 @@ async def _(client, callback_query):
                             importlib.reload(
                                 importlib.import_module(f"GooUbot.modules.{mod}")
                             )
-                        return await callback_query.edit_message_text(
+                        return await message.reply(
                             f"ʀᴇꜱᴛᴀʀᴛ ʙᴇʀʜᴀꜱɪʟ ᴅɪʟᴀᴋᴜᴋᴀɴ !\n\n ɴᴀᴍᴇ: {UB.me.first_name} {UB.me.last_name or ''} | {UB.me.id}"
                         )
                     except Exception as error:
-                        return await callback_query.edit_message_text(f"{error}")
+                        return await message.reply(f"{error}")
 
 @PY.BOT("restart")
 async def _(client, message):
@@ -607,15 +344,56 @@ async def _(client, message):
                     except Exception as error:
                         return await msg.edit(f"{error}")
 
-@PY.CALLBACK("cek_ubot")
+@bot.on_message(filters.regex("^Daftar Pengguna$") & filters.private)
 @PY.BOT("getubot")
 @PY.ADMIN
-async def _(client, callback_query):
+async def _(client, message):
     await bot.send_message(
-        callback_query.from_user.id,
+        message.from_user.id,
         await MSG.UBOT(0),
         reply_markup=InlineKeyboardMarkup(BTN.UBOT(ubot._ubot[0].me.id, 0)),
     )
+
+@bot.on_message(filters.regex("^Syarat & Ketentuan$") & filters.private)
+async def _(client, message):
+    await message.reply(f"""
+<blockquote><b>Hai cuy, nih gua jelasin apa itu userbot sama apa resiko kalo lu make userbot. Baca nih!
+
+Userbot itu bot yang bisa di pasang ke akun lu, fungsi sama tujuan nya juga beda beda. Tapi yang pasti userbot biasanya di pake buat jadi asisten pribadi gtu yang mempermudah lu lakuin sesuatu.
+
+Resiko masang userbot juga beragam, mulai dari kena limit, freeze, sampe bisa ke banned tergantung ketahanan akun. yang rawan kedeak itu biasanya ID awalan 6-8(10digit) atau akun akun yang baru di bikin. Belakagan ini banyak yang kedeak karna ketentuan dari pihak Telegram makin di perketat, soalnya userbot itu bisa di bilang ngelanggar Kebijkan Telegram. Jadi, mau akun baru atau lama sama aja punya potensi ke banned, ya tergantung cara lu make userbot nya aja sih.
+
+Buat ngurangin resiko nya, lu bisa pake ID lama kaya 1/2/3/4/5(10digit) apa ga akun yang lebih lama lagi yaitu akun 9 digit. Kalo ID 6/7/8 lu harus pake dulu akun nya minimal sebulan lah, ya walaupun sebenernya ke banned apa ngga nya itu ya tergantung dari sistem & pihak Telegram nya juga. Terakhir nih, biar lu ga gampang kena limit lu bisa berlangganan Telegram Premium.
+
+Penyebab kena Banned/Limit :
+1. Kedeteksi spam
+2. Kedeteksi ngelanggan Kebijakan Telegram
+3. Banyak yang report akun lu
+
+Udah si gitu aja dari gua, byee!</b></blockquote>
+"""
+    )
+
+@bot.on_message(filters.regex("^Informasi Bot$") & filters.private)
+async def _(client, message):
+    await message.reply(f"""Informasi {bot.me.mention}:
+Bot version 1.2 by @goofounder
+"""
+    )
+
+@bot.on_message(filters.regex("^Support Group$") & filters.private)
+async def _(client, message):
+    await message.reply(f"""Join sini buat nanya nanya seputar bot : 
+Group : https://t.me/gooteam
+"""
+    )
+    
+@bot.on_message(filters.regex("^Lihat Fitur$") & filters.private)
+async def _(client, message):
+    btn = [
+        [InlineKeyboardButton("Ayo tekan akuu!!")]
+    ]
+    await message.reply(f"Hayo mau liat apa?", reply_markup=InlineKeyboardMarkup(btn))
 
 @PY.CALLBACK("cek_masa_aktif")
 async def _(client, callback_query):

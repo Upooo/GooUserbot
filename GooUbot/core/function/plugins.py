@@ -19,26 +19,25 @@ async def loadPlugins() -> None:
         if module_name:
             HELP_COMMANDS[module_name] = imported
 
-    print(f"[{bot.me.full_name} - ᴘʟᴜɢɪɴꜱ ʙᴇʀʜᴀꜱɪʟ ᴅɪ ᴍᴜᴀᴛ")
+    print(f"[{bot.me.full_name} - PLUGINS BERHASIL DI MUAT")
     for chat_id in LOGS_MAKER_UBOT:
         try:
             await bot.send_message(
                 chat_id,
-                f"""<blockquote><b><u>{bot.me.mention} sᴛᴀʀᴛᴇᴅ :</u></b></blockquote>
-<blockquote><b>ɪᴅ :</b> <code>{bot.me.id}</code>
-<b>ɴᴀᴍᴇ :</b> <b>{bot.me.full_name}</b>
-<b>ᴛᴏᴛᴀʟ ᴍᴏᴅᴜʟᴇs :</b> <code>{len(HELP_COMMANDS)}</code>
-<b>ᴛᴏᴛᴀʟ ᴘᴇɴɢɢᴜɴᴀ :</b> <code>{len(ubot._ubot)}</code>
-<b>ᴜsᴇʀɴᴀᴍᴇ :</b> @{bot.me.username}
-</blockquote>""",
+                f"""<blockquote><b><u>{bot.me.mention} started :</u></b></blockquote>
+<blockquote><b>ID :</b> <code>{bot.me.id}</code>
+<b>Nama :</b> <b>{bot.me.full_name}</b>
+<b>Total Modul :</b> <code>{len(HELP_COMMANDS)}</code>
+<b>Total Pengguna :</b> <code>{len(ubot._ubot)}</code>
+<b>Username :</b> @{bot.me.username}</blockquote>""",
                 reply_markup=InlineKeyboardMarkup([
                     [
                         
-                        InlineKeyboardButton("📦 ꜱᴛᴏʀᴇ", url="https://t.me/+op4OV4pI2Kk4ZGU1"),
-                        InlineKeyboardButton("👑 ᴏᴡɴᴇʀ", url="https://t.me/nathanidol"),
+                        InlineKeyboardButton("Store", url="https://t.me/gootoko"),
+                        InlineKeyboardButton("Owner", url="https://t.me/goofounder"),
                     ],
                     [
-                        InlineKeyboardButton("🤖 ᴜsᴇʀʙᴏᴛ", url=f"https://t.me/{bot.me.username}"),
+                        InlineKeyboardButton("Userbot", url=f"https://t.me/{bot.me.username}"),
                     ],
                 ]),
             )

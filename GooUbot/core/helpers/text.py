@@ -6,30 +6,19 @@ from GooUbot import *
 class MSG:     
     def EXP_MSG_UBOT(X):
         return f"""
-<blockquote><b>❏ ᴘᴇᴍʙᴇʀɪᴛᴀʜᴜᴀɴ</b>
-<b>├ ᴀᴋᴜɴ:</b> <a href=tg://user?id={X.me.id}>{X.me.first_name} {X.me.last_name or ''}</a>
-<b>├ ɪᴅ:</b> <code>{X.me.id}</code>
-<b>╰ ᴍᴀsᴀ ᴀᴋᴛɪꜰ ᴛᴇʟᴀʜ ʜᴀʙɪs</b></blockquote>
+<b><blockquote>Notif Expired!</b>
+<b>Nama :</b> <a href=tg://user?id={X.me.id}>{X.me.first_name} {X.me.last_name or ''}</a>
+<b>Id :</b> <code>{X.me.id} </code>
+<b>Pesan : Masa aktif lu udah abis cuy.</blockquote></b>
 """
 
     def START(message):
         return f"""
-<blockquote><b>👋🏻 ʜᴀʟᴏ <a href=tg://user?id={message.from_user.id}>{message.from_user.first_name} {message.from_user.last_name or ''}</a></b>❕</blockquote>
+<b><blockquote>👋🏻 Hey, <a href=tg://user?id={message.from_user.id}>{message.from_user.first_name} {message.from_user.last_name or ''}</a>❕</blockquote>
+<blockquote>Gua {bot.me.mention}, sebuah bot multi client yang bisa bantuin lu buat masang userbot di akun telegram lu dengan mudah dan cepat, gua siap jadi asisten pribadi lu.
 
-<blockquote><b>{bot.me.mention} ᴀᴅᴀʟᴀʜ ʙᴏᴛ ʏᴀɴɢ ᴅᴀᴘᴀᴛ ᴍᴇᴍʙᴜᴀᴛ ᴜꜱᴇʀʙᴏᴛ ᴅᴇɴɢᴀɴ ᴍᴜᴅᴀʜ.</b>
-<b>ʙᴏᴛ ɪɴɪ ᴅɪ ᴋᴇᴍʙᴀɴɢɪɴ ꜱᴀᴍᴀ : <a href=tg://user?id={OWNER_ID}>ᴛᴇᴀᴍ ɪᴅᴏʟ</a>, ᴋᴀʟᴏ ᴀᴅᴀ ᴇʀᴏʀ ᴀᴛᴀᴜ ᴘʀᴏʙʟᴇᴍ ʟᴀɴɢꜱᴜɴɢ ᴅᴍ ᴏᴡɴᴇʀ ɴʏᴀ ᴀᴊᴀ.</b></blockquote>
-
-<blockquote><b>👉 ꜱᴇᴋᴀʀᴀɴɢ, ᴛɪɴɢɢᴀʟ ᴘɪʟɪʜ ʟᴀʟᴜ ᴛᴇᴋᴀɴ ᴛᴏᴍʙᴏʟ ᴅɪ ʙᴀᴡᴀʜ ɪɴɪ❗</b></blockquote>
-"""
-
-    def TEXT_PAYMENT(harga, total, bulan):
-        return f"""
-<blockquote><b>💬 sɪʟᴀʜᴋᴀɴ ᴍᴇʟᴀᴋᴜᴋᴀɴ ᴘᴇᴍʙᴀʏᴀʀᴀɴ ᴛᴇʀʟᴇʙɪʜ ᴅᴀʜᴜʟᴜ</b></blockquote>
-<blockquote><b>silahkan chat owner saya
-OWNER BOT : <a href=tg://openmessage?user_id={OWNER_ID}>nathann.</a></b></blockquote>
-
-<blockquote><b>🛍 ᴋʟɪᴋ ᴛᴏᴍʙᴏʟ ᴋᴏɴꜰɪʀᴍᴀsɪ ᴜɴᴛᴜᴋ ᴋɪʀɪᴍ ʙᴜᴋᴛɪ ᴘᴇᴍʙᴀʏᴀʀᴀɴ ᴀɴᴅᴀ</b></blockquote>
-"""
+Sebelum lu pasang, lu harus baca Syarat dan Kententuan telegram dulu tentang resiko penggunaan userbot. Kalo lu udah baca dan pengen lanjutin masang, tinggal pilih tombol di bawah.</blockquote>
+<blockquote>Belum ada akses? Beli di : @gooteam</blockquote></b>"""
 
     async def UBOT(count):
         return f"""
