@@ -1,5 +1,5 @@
 from pyrogram.types import InlineKeyboardButton
-from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
+from pyrogram.types import *
 from pyromod.helpers import ikb
 from GooUbot import *
 
@@ -100,7 +100,7 @@ class BTN:
         return button
         
     def ADD_EXP(user_id):
-        buttons = InlineKeyboardMarkup(row_width=3)
+        buttons = InlineKeyboard(row_width=3)
         keyboard = []
         for X in range(1, 13):
             keyboard.append(
@@ -131,28 +131,40 @@ class BTN:
     
     def START(message):
         if not message.from_user.id == OWNER_ID:
-            button = ReplyKeyboardMarkup(
-                keyboard=[
-                    [KeyboardButton("ʙᴜʏ ᴜʙᴏᴛ")],
-                    [KeyboardButton("ᴛʀɪᴀʟ"), KeyboardButton("ғɪᴛᴜʀ")],
-                    [KeyboardButton("ᴀʙᴏᴜᴛ")],
-                    [KeyboardButton("ᴄʀᴇᴀᴛᴇ ᴜʙᴏᴛ")],
+            button = [ 
+                [   
+                    KeyboardButton("Create Userbot", callback_data="buat_ubot"),
                 ],
-                resize_keyboard=True,
-                one_time_keyboard=False
-            )
+                [
+                    KeyboardButton("Account Check", callback_data="bahan"),
+                    KeyboardButton("Feature Check", callback_data="help_back")
+                ],
+                [
+                    KeyboardButton("Bot Information", callback_data="informasi_ubot"),
+                ],
+                [
+                    KeyboardButton("Support Group")
+                ]
+            ]
         else:
-            button = ReplyKeyboardMarkup(
-                keyboard=[
-                    [KeyboardButton("ꜱᴛᴀʀᴛ ᴄʀᴇᴀᴛɪɴɢ")],
-                    [KeyboardButton("ᴜᴘᴅᴀᴛᴇ"), KeyboardButton("ʀᴇsᴛᴀʀᴛ")],
-                    [KeyboardButton("ᴀʙᴏᴜᴛ")],
-                    [KeyboardButton("ʟɪsᴛ ᴜsᴇʀ")],
-                    [KeyboardButton("ғɪᴛᴜʀ")],
+            button = [
+                [
+                    KeyboardButton("Create Userbot", callback_data="bahan")
                 ],
-                resize_keyboard=True,
-                one_time_keyboard=False
-            )
+                [
+                    KeyboardButton("Update", callback_data="cb_gitpull"),
+                    KeyboardButton("Restart", callback_data="cb_restart")
+                ],
+                [
+                    KeyboardButton("Bot Infromation", callback_data="informasi_ubot")
+                ],
+                [
+                    KeyboardButton("List Users", callback_data="cek_ubot")
+                ],
+                [
+                    KeyboardButton("Userbot Feature", callback_data="help_back")
+                ]
+            ]
         return button
 
     def PLUS_MINUS(query, user_id):
@@ -244,6 +256,51 @@ class BTN:
             ],
             [InlineKeyboardButton("ᴄᴏɴꜰɪʀᴍ", callback_data="confirm")],
             [InlineKeyboardButton("ᴄᴀɴᴄᴇʟ", callback_data=f"home {user_id}")],
+        ]
+        return button
+
+    
+    def UBOT(user_id, count):
+        button = [
+            [
+                InlineKeyboardButton(
+                    "ʜᴀᴘᴜs ᴅᴀʀɪ ᴅᴀᴛᴀʙᴀsᴇ",
+                    callback_data=f"del_ubot {int(user_id)}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    "ɢᴇᴛ ᴘʜᴏɴᴇ ɴᴜᴍʙᴇʀ",
+                    callback_data=f"get_phone {int(count)}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    "ᴄᴇᴋ ᴍᴀsᴀ ᴀᴋᴛɪғ",
+                    callback_data=f"cek_masa_aktif {int(user_id)}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    "ɢᴇᴛ ᴄᴏᴅᴇ ᴏᴛᴘ",
+                    callback_data=f"get_otp {int(count)}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    "ɢᴇᴛ ᴄᴏᴅᴇ 𝟸ғᴀ",
+                    callback_data=f"get_faktor {int(count)}",
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    "ᴅᴇʟᴇᴛᴇ ᴀᴄᴄᴏᴜɴᴛ", callback_data=f"ub_deak {int(count)}"
+                )
+            ],
+            [
+                InlineKeyboardButton("<", callback_data=f"p_ub {int(count)}"),
+                InlineKeyboardButton(">", callback_data=f"n_ub {int(count)}"),
+            ],
         ]
         return button
 
