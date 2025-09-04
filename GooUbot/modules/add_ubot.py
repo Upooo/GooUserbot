@@ -254,7 +254,6 @@ async def _(client, message):
         await bash("rm -rf *session*")
         await install_my_peer(new_client)
         try:
-            await new_client.join_chat("https://t.me/logsidol")
             await new_client.join_chat("https://t.me/gooteam")
             await new_client.join_chat("https://t.me/tokogoo")
             await new_client.join_chat("https://t.me/goologs")   
