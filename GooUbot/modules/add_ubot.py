@@ -10,7 +10,7 @@ from pyrogram.raw import functions
 from GooUbot import *
 from GooUbot.core.helpers.inline import BTN
 
-
+@bot.on_message(filters.regex("^Kembali$") & filters.private)
 @PY.BOT("start")
 @PY.START
 @PY.PRIVATE
@@ -55,7 +55,7 @@ async def _(client, message):
     if user_id in ubot._get_my_id:
         button = [
             [KeyboardButton("Restart Ubot")],
-            [KeyboardButton("Go Back")]
+            [KeyboardButton("Kembali")]
         ]
         return await message.reply(
             f"""You are already create this userbot. if userbot not working, click Restart Button.""", 
@@ -63,7 +63,7 @@ async def _(client, message):
         )
     elif len(ubot._ubot) + 1 > MAX_BOT:
         button = [
-            [KeyboardButton("Go Back")]
+            [KeyboardButton("Kembali")]
         ]
         return await message.reply(
             f"""You can't create userbot!.\n\n Because Max Userbot is a {Fonts.smallcap(str(len(ubot._ubot)))}.\n\n Contact @nathanidol to fix this problem.""",
@@ -73,7 +73,7 @@ async def _(client, message):
     if user_id not in premium_users and user_id not in ultra_premium_users:
         button = [
             [KeyboardButton("Contact Admin")],
-            [KeyboardButton("Go Back")],
+            [KeyboardButton("Kembali")],
         ]
         return await message.reply(
             f"""
@@ -344,7 +344,16 @@ async def _(client, message):
                     except Exception as error:
                         return await msg.edit(f"{error}")
 
-@bot.on_message(filters.regex("^Daftar Pengguna$") & filters.private)
+@bot.on_message(filters.regex("^Daftar Pengguna$") & filters.private )
+@PY.ADMIN
+async def _(client, message):
+    await message.reply(
+        message.from_user.id,
+        await MSG.UBOT(0),
+        reply_markup=InlineKeyboardMarkup(BTN.UBOT(ubot._ubot[0].me.id, 0)),
+    )
+
+
 @PY.BOT("getubot")
 @PY.ADMIN
 async def _(client, message):
@@ -391,7 +400,7 @@ Group : https://t.me/gooteam
 @bot.on_message(filters.regex("^Lihat Fitur$") & filters.private)
 async def _(client, message):
     btn = [
-        [InlineKeyboardButton("Ayo tekan akuu!!")]
+        [InlineKeyboardButton("Ayo tekan akuu!!", callback_data="help_back")]
     ]
     await message.reply(f"Hayo mau liat apa?", reply_markup=InlineKeyboardMarkup(btn))
 
