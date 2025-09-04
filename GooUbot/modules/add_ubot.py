@@ -17,7 +17,7 @@ from GooUbot.core.helpers.inline import BTN
 async def _(client, message): 
     buttons = BTN.START(message)
     msg = MSG.START(message)
-    return await message.reply(msg, reply_markup=InlineKeyboardMarkup(buttons))
+    return await message.reply(msg, reply_markup=ReplyKeyboardMarkup(buttons))
 
 @PY.CALLBACK("bahan")
 async def _(client, callback_query):
