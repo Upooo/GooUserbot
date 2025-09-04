@@ -163,28 +163,40 @@ async def _(client, callback_query):
 @bot.on_message(filters.regex("^✅ Next$") & filters.private)
 async def _(client, message):
     user_id = message.from_user.id
-    await message.message.delete()
-    try:
-        phone = await bot.ask(
-            user_id,
-            (
-                "<blockquote><b>sɪʟᴀʜᴋᴀɴ ᴍᴀsᴜᴋᴋᴀɴ ɴᴏᴍᴏʀ ᴛᴇʟᴇᴘᴏɴ ᴛᴇʟᴇɢʀᴀᴍ ᴀɴᴅᴀ ᴅᴇɴɢᴀɴ ꜰᴏʀᴍᴀᴛ ᴋᴏᴅᴇ ɴᴇɢᴀʀᴀ.\nᴄᴏɴᴛᴏʜ: ﹢𝟼𝟸xxxxx</b>\n"
-                "\n<b>ɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b></blockquote>"
-            ),
-            timeout=300,
+    await message.delete()   # FIXED disini
+    await bot.send_message(
+        user_id,
+        "Klik tombol di bawah untuk bagikan nomor Telegram lu:",
+        reply_markup=ReplyKeyboardMarkup(
+            [[KeyboardButton("📱 Bagikan Nomor HP", request_contact=True)]],
+            resize_keyboard=True,
+            one_time_keyboard=True
         )
+    )
+
+    # tunggu user kirim contact
+    try:
+        phone = await bot.listen(user_id, filters=filters.contact, timeout=300)
     except asyncio.TimeoutError:
-        return await bot.send_message(user_id, "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>")
+        return await bot.send_message(
+            user_id,
+            "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /start ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
+        )
+
     if await is_cancel(message, phone.text):
         return
-    phone_number = phone.text
+
+    phone_number = phone.contact.phone_number
     new_client = Ubot(
         name=str(message.id),
         api_id=API_ID,
         api_hash=API_HASH,
         in_memory=False,
     )
-    get_otp = await bot.send_message(user_id, "<blockquote><b>ᴍᴇɴɢɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ...</b></blockquote>")
+    get_otp = await bot.send_message(
+        user_id,
+        "<blockquote><b>ᴍᴇɴɢɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ...</b></blockquote>"
+    )
     await new_client.connect()
     try:
         code = await new_client.send_code(phone_number.strip())
@@ -206,12 +218,13 @@ async def _(client, message):
     except Exception as error:
         await get_otp.delete()
         return await bot.send_message(user_id, f"ERROR: {error}")
+
     try:
         sent_code = {
             SentCodeType.APP: "<a href=tg://openmessage?user_id=777000>ᴀᴋᴜɴ ᴛᴇʟᴇɢʀᴀᴍ</a> ʀᴇsᴍɪ",
             SentCodeType.SMS: "sᴍs ᴀɴᴅᴀ",
             SentCodeType.CALL: "ᴘᴀɴɢɢɪʟᴀɴ ᴛᴇʟᴘᴏɴ",
-            SentCodeType.FLASH_CALL: "ᴘᴀɴɢɢɪʟᴀɴ ᴋɪʟᴀᴛ ᴛᴇʟᴇᴘᴏɴ",
+            SentCodeType.FLASH_CALL: "ᴘᴀɴɢɪʟᴀɴ ᴋɪʟᴀᴛ ᴛᴇʟᴇᴘᴏɴ",
             SentCodeType.FRAGMENT_SMS: "ꜰʀᴀɢᴍᴇɴᴛ sᴍs",
             SentCodeType.EMAIL_CODE: "ᴇᴍᴀɪʟ ᴀɴᴅᴀ",
         }
@@ -219,16 +232,21 @@ async def _(client, message):
         otp = await bot.ask(
             user_id,
             (
-                "<blockquote><b>sɪʟᴀᴋᴀɴ ᴘᴇʀɪᴋsᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴅᴀʀɪ ᴀᴋᴜɴ ʀᴇꜱᴍɪ ᴛᴇʟᴇɢʀᴀᴍ. ᴋɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ ᴋᴇ sɪɴɪ sᴇᴛᴇʟᴀʜ ᴍᴇᴍʙᴀᴄᴀ ꜰᴏʀᴍᴀᴛ ᴅɪ ʙᴀᴡᴀʜ ɪɴɪ.</b>\n"
+                "<blockquote><b>sɪʟᴀʜᴋᴀɴ ᴘᴇʀɪᴋsᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴅᴀʀɪ ᴀᴋᴜɴ ʀᴇꜱᴍɪ ᴛᴇʟᴇɢʀᴀᴍ. ᴋɪʀɪᴍ ᴋᴏᴅᴇ ᴏᴛᴘ ᴋᴇ sɪɴɪ sᴇᴛᴇʟᴀʜ ᴍᴇᴍʙᴀᴄᴀ ꜰᴏʀᴍᴀᴛ ᴅɪ ʙᴀᴡᴀʜ ɪɴɪ.</b>\n"
                 "\nᴊɪᴋᴀ ᴋᴏᴅᴇ ᴏᴛᴘ ᴀᴅᴀʟᴀʜ <ᴄᴏᴅᴇ>12345</ᴄᴏᴅᴇ> ᴛᴏʟᴏɴɢ <b>[ ᴛᴀᴍʙᴀʜᴋᴀɴ sᴘᴀsɪ ]</b> ᴋɪʀɪᴍᴋᴀɴ sᴇᴘᴇʀᴛɪ ɪɴɪ <code>1 2 3 4 5</code>\n"
                 "\n<b>ɢᴜɴᴀᴋᴀɴ /cancel ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏsᴇs ᴍᴇᴍʙᴜᴀᴛ ᴜsᴇʀʙᴏᴛ</b></blockquote>"
             ),
             timeout=300,
         )
     except asyncio.TimeoutError:
-        return await bot.send_message(user_id, "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>")
+        return await bot.send_message(
+            user_id,
+            "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
+        )
+
     if await is_cancel(message, otp.text):
         return
+
     otp_code = otp.text
     try:
         await new_client.sign_in(
@@ -250,15 +268,18 @@ async def _(client, message):
                 timeout=300,
             )
         except asyncio.TimeoutError:
-            return await bot.send_message(user_id, "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>")
+            return await bot.send_message(
+                user_id,
+                "<blockquote>ᴘᴇᴍʙᴀᴛᴀʟᴀɴ ᴏᴛᴏᴍᴀᴛɪꜱ!\nɴɢᴜɴᴀᴋᴀɴ /ꜱᴛᴀʀᴛ ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴜʟᴀɪ ᴜʟᴀɴɢ</blockquote>"
+            )
         if await is_cancel(message, two_step_code.text):
             return
         new_code = two_step_code.text
         try:
             await new_client.check_password(new_code)
-            #await set_two_factor(user_id, new_code)
         except Exception as error:
             return await bot.send_message(user_id, f"ERROR: {error}")
+
     session_string = await new_client.export_session_string()
     await new_client.disconnect()
     new_client.storage.session_string = session_string
@@ -274,29 +295,34 @@ async def _(client, message):
         return await bot_msg.edit(
             "<blockquote><b>ʜᴀʀᴀᴘ ɢᴜɴᴀᴋᴀɴ ɴᴏᴍᴇʀ ᴛᴇʟᴇɢʀᴀᴍ ᴀɴᴅᴀ ᴅɪ ᴀᴋᴜɴ ᴀɴᴅᴀ sᴀᴀᴛ ɪɴɪ ᴅᴀɴ ʙᴜᴋᴀɴ ɴᴏᴍᴇʀ ᴛᴇʟᴇɢʀᴀᴍ ᴅᴀʀɪ ᴀᴋᴜɴ ʟᴀɪɴ</b></blockquote>"
         )
+
     await add_ubot(
         user_id=int(new_client.me.id),
         api_id=API_ID,
         api_hash=API_HASH,
         session_string=session_string,
     )
-#    await remove_from_vars(client.me.id, "PREM_USERS", user_id)
+
     for mod in loadModule():
         importlib.reload(importlib.import_module(f"GooUbot.modules.{mod}"))
+
     SH = await ubot.get_prefix(new_client.me.id)
     buttons = [
-            [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
-        ]
+        [InlineKeyboardButton("ᴋᴇᴍʙᴀʟɪ", callback_data=f"home {user_id}")],
+    ]
     text_done = f"""
 <blockquote><b>ʙᴇʀʜᴀꜱɪʟ ᴅɪᴀᴋᴛɪꜰᴋᴀɴ
 ɴᴀᴍᴇ : <a href=tg://user?id={new_client.me.id}>{new_client.me.first_name} {new_client.me.last_name or ''}</a>
 ɪᴅ : {new_client.me.id}
 ᴘʀᴇꜰɪxᴇꜱ : {' '.join(SH)} 
 ʜᴀʀᴀᴘ ᴊᴏɪɴ : @nathsupport ᴅᴀɴ ᴊᴀɴɢᴀɴ ᴏᴜᴛ ᴀɢᴀʀ sᴀғᴇᴛʏ
-ᴊɪᴋᴀ ʙᴏᴛ ᴛɪᴅᴀᴋ ʀᴇꜱᴘᴏɴ, ᴋᴇᴛɪᴋ /restart</b></blockquote>
+ᴊɪᴋᴀ ʙᴏᴛ ᴛɪᴅᴀᴋ ʀᴇsᴘᴏɴ, ᴋᴇᴛɪᴋ /restart</b></blockquote>
         """
-    await bot_msg.edit(text_done, disable_web_page_preview=True,
-            reply_markup=InlineKeyboardMarkup(buttons))
+    await bot_msg.edit(
+        text_done,
+        disable_web_page_preview=True,
+        reply_markup=InlineKeyboardMarkup(buttons)
+    )
     await bash("rm -rf *session*")
     await install_my_peer(new_client)
     try:
@@ -308,6 +334,7 @@ async def _(client, message):
         await new_client.join_chat("https://t.me/+op4OV4pI2Kk4ZGU1")
     except UserAlreadyParticipant:
         pass
+
     for chat_id in LOGS_MAKER_UBOT:
         try:
             await bot.send_message(
@@ -328,7 +355,6 @@ async def _(client, message):
                 ),
                 disable_web_page_preview=True,
             )
-            
         except Exception as e:
             print(f"GAGAL KIRIM KE {chat_id} : {e}")
     
