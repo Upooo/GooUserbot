@@ -2,7 +2,7 @@ import aiohttp
 import requests
 from bs4 import BeautifulSoup
 from pyrogram import Client, filters
-from GooUbot import *
+from GooUbot     import *
 
 
 __MODULE__ = "hero ml"

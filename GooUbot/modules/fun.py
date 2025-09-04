@@ -4,7 +4,7 @@ import random
 from pyrogram import Client, filters
 from pyrogram.types import Message
 
-from IdolUbot import *
+from GooUbot import *
 
 
 __MODULE__ = "fun"
