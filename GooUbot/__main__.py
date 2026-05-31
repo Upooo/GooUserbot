@@ -1,9 +1,6 @@
 import asyncio
 import signal
 
-import tornado.ioloop
-import tornado.platform.asyncio
-
 from GooUbot import *
 from GooUbot.core.database.userbot import *
 
@@ -12,45 +9,38 @@ UBOT_START_TIMEOUT = 10
 
 
 # ==========================
-# SHUTDOWN
+# GLOBAL SHUTDOWN
 # ==========================
 
 async def shutdown(sig):
-    print(
-        f"[INFO] "
-        f"Received signal "
-        f"{sig.name}. "
-        f"Shutting down..."
-    )
+    print(f"[INFO] Signal {sig.name} received. Shutting down...")
 
-    tasks = [
-        task
-        for task in asyncio.all_tasks()
-        if task is not asyncio.current_task()
-    ]
-
-    for task in tasks:
-        task.cancel()
-
-    print(
-        f"[INFO] "
-        f"Cancelling "
-        f"{len(tasks)} "
-        f"tasks..."
-    )
-
-    await asyncio.gather(
-        *tasks,
-        return_exceptions=True,
-    )
-
+    # stop bot
     try:
         await bot.stop()
     except Exception as e:
-        print(
-            f"[ERROR] "
-            f"Failed stopping bot: {e}"
-        )
+        print(f"[ERROR] bot stop failed: {e}")
+
+    # stop all userbots
+    try:
+        for ub in getattr(Ubot, "_ubot", []):
+            try:
+                await ub.stop()
+            except Exception:
+                pass
+    except Exception:
+        pass
+
+    # cancel tasks
+    tasks = [
+        t for t in asyncio.all_tasks()
+        if t is not asyncio.current_task()
+    ]
+
+    for t in tasks:
+        t.cancel()
+
+    await asyncio.gather(*tasks, return_exceptions=True)
 
 
 # ==========================
@@ -60,42 +50,31 @@ async def shutdown(sig):
 async def start_userbots():
     userbots = await get_userbots()
 
+    tasks = []
+
     for userbot_data in userbots:
 
-        userbot = Ubot(
-            **userbot_data
-        )
+        userbot = Ubot(**userbot_data)
 
-        try:
-            await asyncio.wait_for(
-                userbot.start(),
-                timeout=UBOT_START_TIMEOUT,
-            )
+        async def start_one(ub, data):
+            try:
+                await asyncio.wait_for(
+                    ub.start(),
+                    timeout=UBOT_START_TIMEOUT,
+                )
 
-        except asyncio.TimeoutError:
+            except asyncio.TimeoutError:
+                await remove_ubot(int(data["name"]))
+                print(f"[TIMEOUT] {data['name']} removed")
 
-            await remove_ubot(
-                int(userbot_data["name"])
-            )
+            except Exception as e:
+                await remove_ubot(int(data["name"]))
+                print(f"[ERROR] {data['name']} failed: {e}")
 
-            print(
-                "[INFO] "
-                f"{userbot_data['name']} "
-                "timeout "
-                "while starting"
-            )
+        tasks.append(start_one(userbot, userbot_data))
 
-        except Exception as e:
-
-            await remove_ubot(
-                int(userbot_data["name"])
-            )
-
-            print(
-                "[ERROR] "
-                f"{userbot_data['name']} "
-                f"failed: {e}"
-            )
+    # 🔥 PARALLEL START (lebih cepat & stabil)
+    await asyncio.gather(*tasks, return_exceptions=True)
 
 
 # ==========================
@@ -108,33 +87,24 @@ async def main():
 
     await start_userbots()
 
-    # safer cleanup
-    await bash(
-        "rm -f ./*.session*"
-    )
+    await bash("rm -f ./*.session*")
 
+    # FIXED GATHER USAGE
     await asyncio.gather(
         loadPlugins(),
         installPeer(),
         expiredUserbots(),
-        return_exceptions=True,
+        return_exceptions=True
     )
 
     loop = asyncio.get_running_loop()
 
-    for sig in (
-        signal.SIGINT,
-        signal.SIGTERM,
-    ):
+    for sig in (signal.SIGINT, signal.SIGTERM):
         loop.add_signal_handler(
             sig,
-            lambda s=sig:
-            asyncio.create_task(
-                shutdown(s)
-            )
+            lambda s=sig: asyncio.create_task(shutdown(s))
         )
 
-    # keep alive forever
     await asyncio.Future()
 
 
@@ -144,19 +114,10 @@ async def main():
 
 if __name__ == "__main__":
 
-    tornado.platform.asyncio.AsyncIOMainLoop().install()
+    # 🔥 OPTIONAL: ini boleh dihapus kalau gak pakai tornado fitur khusus
+    # tornado.platform.asyncio.AsyncIOMainLoop().install()
 
-    loop = (
-        tornado.ioloop
-        .IOLoop.current()
-        .asyncio_loop
-    )
-
-    loop.run_until_complete(
-        main()
-    )
-
-
+    asyncio.run(main())
 # import asyncio
 # import signal
 # from GooUbot.core.database.userbot import *

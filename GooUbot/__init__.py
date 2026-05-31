@@ -2,43 +2,28 @@ import logging
 import os
 import re
 import sys
+import asyncio
 
 from aiohttp import ClientSession
 from pyrogram import Client, filters
-from pyrogram.handlers import (
-    CallbackQueryHandler,
-    MessageHandler,
-)
+from pyrogram.handlers import CallbackQueryHandler, MessageHandler
 from pytgcalls import PyTgCalls
 
 from GooUbot.config import *
-
 
 # ==========================
 # LOGGING
 # ==========================
 
 class ConnectionHandler(logging.Handler):
-    RESTART_ERRORS = (
-        "OSError",
-        "TimeoutError",
-    )
+    RESTART_ERRORS = ("OSError", "TimeoutError")
 
     def emit(self, record):
         message = record.getMessage()
 
-        if any(
-            error in message
-            for error in self.RESTART_ERRORS
-        ):
-            logging.error(
-                "Connection issue detected. Restarting..."
-            )
-
-            os.execv(
-                sys.executable,
-                [sys.executable, "-m", "GooUbot"],
-            )
+        if any(err in message for err in self.RESTART_ERRORS):
+            logging.error("Connection issue detected. Restarting...")
+            os.execv(sys.executable, [sys.executable, "-m", "GooUbot"])
 
 
 logger = logging.getLogger()
@@ -57,10 +42,7 @@ connection_handler = ConnectionHandler()
 logger.addHandler(stream_handler)
 logger.addHandler(connection_handler)
 
-logging.getLogger(
-    "pytgcalls"
-).setLevel(logging.WARNING)
-
+logging.getLogger("pytgcalls").setLevel(logging.WARNING)
 
 # ==========================
 # HTTP SESSION
@@ -75,38 +57,16 @@ aiosession = ClientSession()
 
 class Bot(Client):
 
-    def on_message(
-        self,
-        filters=None,
-        group=-1
-    ):
+    def on_message(self, filters=None, group=-1):
         def decorator(func):
-            self.add_handler(
-                MessageHandler(
-                    func,
-                    filters
-                ),
-                group
-            )
+            self.add_handler(MessageHandler(func, filters), group)
             return func
-
         return decorator
 
-    def on_callback_query(
-        self,
-        filters=None,
-        group=-1
-    ):
+    def on_callback_query(self, filters=None, group=-1):
         def decorator(func):
-            self.add_handler(
-                CallbackQueryHandler(
-                    func,
-                    filters
-                ),
-                group
-            )
+            self.add_handler(CallbackQueryHandler(func, filters), group)
             return func
-
         return decorator
 
     async def start(self):
@@ -121,10 +81,6 @@ class Bot(Client):
 # ==========================
 
 class Ubot(Client):
-    """
-    Shared state between
-    all running ubot instances.
-    """
 
     _ubot = []
     _prefix = {}
@@ -134,171 +90,48 @@ class Ubot(Client):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.call_py = PyTgCalls(self)
+        self.call_py = None  # 🔥 JANGAN INIT DI SINI
 
-    def on_message(
-        self,
-        filters=None,
-        group=-1
-    ):
+    def on_message(self, filters=None, group=-1):
         def decorator(func):
             for ub in self._ubot:
-                ub.add_handler(
-                    MessageHandler(
-                        func,
-                        filters
-                    ),
-                    group
-                )
+                ub.add_handler(MessageHandler(func, filters), group)
             return func
-
         return decorator
 
-    def set_prefix(
-        self,
-        user_id,
-        prefix
-    ):
+    def set_prefix(self, user_id, prefix):
         self._prefix[user_id] = prefix
 
-    async def get_prefix(
-        self,
-        user_id
-    ):
-        return self._prefix.get(
-            user_id,
-            ["."]
-        )
+    async def get_prefix(self, user_id):
+        return self._prefix.get(user_id, ["."])
 
-    def cmd_prefix(self, cmd):
-
-        command_re = re.compile(
-            r"([\"'])(.*?)(?<!\\)\1|(\S+)"
-        )
-
-        async def func(
-            _,
-            client,
-            message
-        ):
-            if not message.text:
-                return False
-
-            text = message.text.strip()
-
-            if not text:
-                return False
-
-            username = (
-                client.me.username
-                or ""
-            )
-
-            prefixes = await self.get_prefix(
-                client.me.id
-            )
-
-            for prefix in prefixes:
-
-                if not text.startswith(prefix):
-                    continue
-
-                without_prefix = text[
-                    len(prefix):
-                ]
-
-                for command in cmd.split("|"):
-
-                    escaped_command = re.escape(
-                        command
-                    )
-
-                    pattern = (
-                        rf"^(?:"
-                        rf"{escaped_command}"
-                        rf"(?:@?{username})?"
-                        rf")(?:\s|$)"
-                    )
-
-                    if not re.match(
-                        pattern,
-                        without_prefix,
-                        flags=(
-                            re.IGNORECASE
-                            | re.UNICODE
-                        ),
-                    ):
-                        continue
-
-                    without_command = re.sub(
-                        rf"{escaped_command}"
-                        rf"(?:@?{username})?"
-                        rf"\s?",
-                        "",
-                        without_prefix,
-                        count=1,
-                        flags=(
-                            re.IGNORECASE
-                            | re.UNICODE
-                        ),
-                    )
-
-                    message.command = [
-                        command
-                    ] + [
-                        re.sub(
-                            r"\\([\"'])",
-                            r"\1",
-                            (
-                                m.group(2)
-                                or m.group(3)
-                                or ""
-                            ),
-                        )
-                        for m in command_re.finditer(
-                            without_command
-                        )
-                    ]
-
-                    return True
-
-            return False
-
-        return filters.create(func)
-
+    # ==========================
+    # START USERBOT
+    # ==========================
     async def start(self):
         await super().start()
 
-        await self.call_py.start()
+        # 🔥 INIT PYTGCALLS DI SINI (WAJIB)
+        self.call_py = PyTgCalls(self)
 
-        handler = await get_pref(
-            self.me.id
-        )
+        try:
+            await self.call_py.start()
+        except Exception as e:
+            print(f"[PyTgCalls ERROR] {e}")
 
-        self._prefix[self.me.id] = (
-            handler
-            if handler
-            else ["."]
-        )
+        handler = await get_pref(self.me.id)
 
+        self._prefix[self.me.id] = handler if handler else ["."]
         self._ubot.append(self)
-        self._get_my_id.append(
-            self.me.id
-        )
+        self._get_my_id.append(self.me.id)
+        self._translate[self.me.id] = "id"
 
-        self._translate[
-            self.me.id
-        ] = "id"
-
-        print(
-            f"[INFO] - "
-            f"({self.me.id}) "
-            f"- STARTED"
-        )
+        print(f"[INFO] - ({self.me.id}) - STARTED")
 
     async def stop(self, *args):
         try:
-            await self.call_py.stop()
+            if self.call_py:
+                await self.call_py.stop()
         except Exception:
             pass
 
@@ -306,7 +139,7 @@ class Ubot(Client):
 
 
 # ==========================
-# CLIENTS
+# CLIENTS INIT
 # ==========================
 
 bot = Bot(
@@ -329,7 +162,6 @@ ubot = Ubot(
 from GooUbot.core.database import *
 from GooUbot.core.function import *
 from GooUbot.core.helpers import *
-
 
 # import uvloop
 

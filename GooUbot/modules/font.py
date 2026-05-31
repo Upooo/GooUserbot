@@ -1,111 +1,121 @@
 from GooUbot import *
+from pyrogram.types import (
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    InlineQueryResultArticle,
+    InputTextMessageContent
+)
 
 __MODULE__ = "font"
 __HELP__ = """
 <blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ꜰᴏɴᴛ--</b></blockquote>
 
 <blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}font</code>
-🦠 ᴋᴇᴛ : ʀᴇᴘʟʏ ᴛᴇxᴛ ᴜɴᴛᴜᴋ ᴍᴇʀᴜʙᴀʜ ᴛᴇxᴛ ᴍᴇɴᴊᴀᴅɪ ꜰᴏɴᴛ ʏᴀɴɢ ʙᴇʀʙᴇᴅᴀ.</blockquote>
+🦠 ᴋᴇᴛ : ʀᴇᴘʟʏ ᴛᴇxᴛ ᴜɴᴛᴜᴋ ᴍᴇʀᴜʙᴀʜ ꜰᴏɴᴛ.</blockquote>
 """
 
-
+# ---------------- FONT COMMAND ----------------
 @PY.UBOT("font")
 @PY.TOP_CMD
-async def _(client, message):
-    if message.reply_to_message:
-        if message.reply_to_message.text:
-            query = id(message)
-        else:
-            return await message.reply("harap reply ke text")
+async def font_cmd(client, message):
+    if message.reply_to_message and message.reply_to_message.text:
+        text = message.reply_to_message.text
     else:
         if len(message.command) < 2:
-            return await message.reply(f"{message.text} [reply/text]")
-        else:
-            query = id(message)
+            return await message.reply("reply / kasih text dulu")
+        text = message.text.split(None, 1)[1]
+
     try:
-        x = await client.get_inline_bot_results(bot.me.username, f"get_font {query}")
-        return await message.reply_inline_bot_result(x.query_id, x.results[0].id)
-    except Exception as error:
-        return await message.reply(error)
-
-
-@PY.INLINE("^get_font")
-async def _(client, inline_query):
-    get_id = int(inline_query.query.split(None, 1)[1])
-    buttons = InlineKeyboard(row_width=3)
-    keyboard = []
-    for X in query_fonts[0]:
-        keyboard.append(
-            InlineKeyboardButton(X, callback_data=f"get {get_id} {query_fonts[0][X]}")
+        x = await client.get_inline_bot_results(
+            bot.me.username,
+            f"get_font {text}"
         )
-    buttons.add(*keyboard)
-    buttons.row(InlineKeyboardButton("►", callback_data=f"next {get_id}"))
+        return await message.reply_inline_bot_result(
+            x.query_id,
+            x.results[0].id
+        )
+    except Exception as error:
+        return await message.reply(f"Error: {error}")
+
+
+# ---------------- INLINE ----------------
+@PY.INLINE("^get_font")
+async def font_inline(client, inline_query):
+    text = inline_query.query.split(None, 1)[1]
+
+    buttons = []
+
+    # halaman 1 fonts
+    for name, style in query_fonts[0].items():
+        buttons.append(
+            InlineKeyboardButton(
+                name,
+                callback_data=f"font|{style}|{text}"
+            )
+        )
+
+    markup = InlineKeyboardMarkup([buttons])
+
     await client.answer_inline_query(
         inline_query.id,
         cache_time=0,
         results=[
-            (
-                InlineQueryResultArticle(
-                    title="get font!",
-                    reply_markup=buttons,
-                    input_message_content=InputTextMessageContent(
-                        "silahkan pilih salah satu font dibawah"
-                    ),
-                )
+            InlineQueryResultArticle(
+                title="Font Generator",
+                input_message_content=InputTextMessageContent(
+                    "pilih font dibawah"
+                ),
+                reply_markup=markup
             )
         ],
     )
 
 
-@PY.CALLBACK("^get")
-async def _(client, callback_query):
+# ---------------- CALLBACK FONT ----------------
+@PY.CALLBACK("^font")
+async def font_callback(client, callback_query):
     try:
-        q = int(callback_query.data.split()[1])
-        m = [obj for obj in get_objects() if id(obj) == q][0]
-        new = str(callback_query.data.split()[2])
-        if m.reply_to_message:
-            text = m.reply_to_message.text
-        else:
-            text = m.text.split(None, 1)[1]
-        get_new_font = gens_font(new, text)
-        return await callback_query.edit_message_text(get_new_font)
+        _, style, text = callback_query.data.split("|", 2)
+
+        result = gens_font(style, text)
+
+        return await callback_query.edit_message_text(result)
+
     except Exception as error:
         return await callback_query.answer(f"Error: {error}", True)
 
 
-@PY.CALLBACK("^next")
-async def _(client, callback_query):
-    try:
-        get_id = int(callback_query.data.split()[1])
-        buttons = InlineKeyboard(row_width=3)
-        keyboard = []
-        for X in query_fonts[1]:
-            keyboard.append(
-                InlineKeyboardButton(
-                    X, callback_data=f"get {get_id} {query_fonts[1][X]}"
-                )
+# ---------------- NEXT PAGE ----------------
+@PY.CALLBACK("^next_font")
+async def next_page(client, callback_query):
+    buttons = []
+
+    for name, style in query_fonts[1].items():
+        buttons.append(
+            InlineKeyboardButton(
+                name,
+                callback_data=f"font|{style}|test"
             )
-        buttons.add(*keyboard)
-        buttons.row(InlineKeyboardButton("◄", callback_data=f"prev {get_id}"))
-        return await callback_query.edit_message_reply_markup(reply_markup=buttons)
-    except Exception as error:
-        return await callback_query.answer(f"Error: {error}", True)
+        )
+
+    markup = InlineKeyboardMarkup([buttons])
+
+    return await callback_query.edit_message_reply_markup(markup)
 
 
-@PY.CALLBACK("^prev")
-async def _(client, callback_query):
-    try:
-        get_id = int(callback_query.data.split()[1])
-        buttons = InlineKeyboard(row_width=3)
-        keyboard = []
-        for X in query_fonts[0]:
-            keyboard.append(
-                InlineKeyboardButton(
-                    X, callback_data=f"get {get_id} {query_fonts[0][X]}"
-                )
+# ---------------- PREV PAGE ----------------
+@PY.CALLBACK("^prev_font")
+async def prev_page(client, callback_query):
+    buttons = []
+
+    for name, style in query_fonts[0].items():
+        buttons.append(
+            InlineKeyboardButton(
+                name,
+                callback_data=f"font|{style}|test"
             )
-        buttons.add(*keyboard)
-        buttons.row(InlineKeyboardButton("►", callback_data=f"next {get_id}"))
-        return await callback_query.edit_message_reply_markup(reply_markup=buttons)
-    except Exception as error:
-        return await callback_query.answer(f"❌ Error: {error}", True)
+        )
+
+    markup = InlineKeyboardMarkup([buttons])
+
+    return await callback_query.edit_message_reply_markup(markup)
