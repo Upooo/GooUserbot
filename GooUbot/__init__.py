@@ -1,87 +1,65 @@
+#import uvloop
+
+#uvloop.install()
+
 import logging
 import os
 import re
-import sys
-import asyncio
 
-from aiohttp import ClientSession
 from pyrogram import Client, filters
+from pyrogram.enums import ParseMode 
 from pyrogram.handlers import CallbackQueryHandler, MessageHandler
+from pyrogram.types import Message
 from pytgcalls import PyTgCalls
-
+from pytgcalls import filters as fl
+from pyromod import listen
 from GooUbot.config import *
-
-# ==========================
-# LOGGING
-# ==========================
+from aiohttp import ClientSession
 
 class ConnectionHandler(logging.Handler):
-    RESTART_ERRORS = ("OSError", "TimeoutError")
-
     def emit(self, record):
-        message = record.getMessage()
-
-        if any(err in message for err in self.RESTART_ERRORS):
-            logging.error("Connection issue detected. Restarting...")
-            os.execv(sys.executable, [sys.executable, "-m", "GooUbot"])
-
+        for X in ["OSError", "TimeoutError"]:
+            if X in record.getMessage():
+                os.system(f"kill -9 {os.getpid()} && python3 -m GooUbot")
 
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
 
-formatter = logging.Formatter(
-    "[%(levelname)s] - %(name)s - %(message)s",
-    "%d-%b %H:%M",
-)
-
+formatter = logging.Formatter("[%(levelname)s] - %(name)s - %(message)s", "%d-%b %H:%M")
 stream_handler = logging.StreamHandler()
-stream_handler.setFormatter(formatter)
 
+stream_handler.setFormatter(formatter)
 connection_handler = ConnectionHandler()
 
 logger.addHandler(stream_handler)
 logger.addHandler(connection_handler)
-
 logging.getLogger("pytgcalls").setLevel(logging.WARNING)
-
-# ==========================
-# HTTP SESSION
-# ==========================
 
 aiosession = ClientSession()
 
-
-# ==========================
-# BOT CLIENT
-# ==========================
-
 class Bot(Client):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
 
     def on_message(self, filters=None, group=-1):
         def decorator(func):
             self.add_handler(MessageHandler(func, filters), group)
             return func
+
         return decorator
 
     def on_callback_query(self, filters=None, group=-1):
         def decorator(func):
             self.add_handler(CallbackQueryHandler(func, filters), group)
             return func
+
         return decorator
 
     async def start(self):
         await super().start()
 
-    async def stop(self, *args):
-        await super().stop()
-
-
-# ==========================
-# USERBOT CLIENT
-# ==========================
-
 class Ubot(Client):
-
+    __module__ = "pyrogram.client"
     _ubot = []
     _prefix = {}
     _get_my_id = []
@@ -90,21 +68,22 @@ class Ubot(Client):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.call_py = None  # 🔥 JANGAN INIT DI SINI
+        self.call_py = PyTgCalls(self)
 
     def on_message(self, filters=None, group=-1):
         def decorator(func):
             for ub in self._ubot:
                 ub.add_handler(MessageHandler(func, filters), group)
             return func
+
         return decorator
 
     def set_prefix(self, user_id, prefix):
         self._prefix[user_id] = prefix
-
+    
     async def get_prefix(self, user_id):
         return self._prefix.get(user_id, ["."])
-    
+
     def cmd_prefix(self, cmd):
         command_re = re.compile(r"([\"'])(.*?)(?<!\\)\1|(\S+)")
 
@@ -149,42 +128,19 @@ class Ubot(Client):
 
         return filters.create(func)
 
-    # ==========================
-    # START USERBOT
-    # ==========================
     async def start(self):
         await super().start()
-
-        # 🔥 INIT PYTGCALLS DI SINI (WAJIB)
-        self.call_py = PyTgCalls(self)
-
-        try:
-            await self.call_py.start()
-        except Exception as e:
-            print(f"[PyTgCalls ERROR] {e}")
-
+        await self.call_py.start()
         handler = await get_pref(self.me.id)
-
-        self._prefix[self.me.id] = handler if handler else ["."]
+        if handler:
+            self._prefix[self.me.id] = handler
+        else:
+            self._prefix[self.me.id] = ["."]
         self._ubot.append(self)
         self._get_my_id.append(self.me.id)
         self._translate[self.me.id] = "id"
-
         print(f"[INFO] - ({self.me.id}) - STARTED")
 
-    async def stop(self, *args):
-        try:
-            if self.call_py:
-                await self.call_py.stop()
-        except Exception:
-            pass
-
-        await super().stop()
-
-
-# ==========================
-# CLIENTS INIT
-# ==========================
 
 bot = Bot(
     name="GooUbot",
@@ -194,173 +150,8 @@ bot = Bot(
     in_memory=True,
 )
 
-ubot = Ubot(
-    name="GooUbot"
-)
-
-
-# ==========================
-# INTERNAL IMPORTS
-# ==========================
+ubot = Ubot(name="GooUbot")
 
 from GooUbot.core.database import *
 from GooUbot.core.function import *
 from GooUbot.core.helpers import *
-
-# import uvloop
-
-# uvloop.install()
-
-# import logging
-# import os
-# import re
-
-# from pyrogram import Client, filters
-# from pyrogram.enums import ParseMode 
-# from pyrogram.handlers import CallbackQueryHandler, MessageHandler
-# from pyrogram.types import Message
-# from pytgcalls import PyTgCalls
-# from pytgcalls import filters as fl
-# from pyromod import listen
-# from GooUbot.config import *
-# from aiohttp import ClientSession
-
-# class ConnectionHandler(logging.Handler):
-#     def emit(self, record):
-#         for X in ["OSError", "TimeoutError"]:
-#             if X in record.getMessage():
-#                 os.system(f"kill -9 {os.getpid()} && python3 -m GooUbot")
-
-# logger = logging.getLogger()
-# logger.setLevel(logging.ERROR)
-
-# formatter = logging.Formatter("[%(levelname)s] - %(name)s - %(message)s", "%d-%b %H:%M")
-# stream_handler = logging.StreamHandler()
-
-# stream_handler.setFormatter(formatter)
-# connection_handler = ConnectionHandler()
-
-# logger.addHandler(stream_handler)
-# logger.addHandler(connection_handler)
-# logging.getLogger("pytgcalls").setLevel(logging.WARNING)
-
-# aiosession = ClientSession()
-
-# class Bot(Client):
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-
-#     def on_message(self, filters=None, group=-1):
-#         def decorator(func):
-#             self.add_handler(MessageHandler(func, filters), group)
-#             return func
-
-#         return decorator
-
-#     def on_callback_query(self, filters=None, group=-1):
-#         def decorator(func):
-#             self.add_handler(CallbackQueryHandler(func, filters), group)
-#             return func
-
-#         return decorator
-
-#     async def start(self):
-#         await super().start()
-
-# class Ubot(Client):
-#     __module__ = "pyrogram.client"
-#     _ubot = []
-#     _prefix = {}
-#     _get_my_id = []
-#     _translate = {}
-#     _get_my_peer = {}
-
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#         self.call_py = PyTgCalls(self)
-
-#     def on_message(self, filters=None, group=-1):
-#         def decorator(func):
-#             for ub in self._ubot:
-#                 ub.add_handler(MessageHandler(func, filters), group)
-#             return func
-
-#         return decorator
-
-#     def set_prefix(self, user_id, prefix):
-#         self._prefix[user_id] = prefix
-    
-#     async def get_prefix(self, user_id):
-#         return self._prefix.get(user_id, ["."])
-
-#     def cmd_prefix(self, cmd):
-#         command_re = re.compile(r"([\"'])(.*?)(?<!\\)\1|(\S+)")
-
-#         async def func(_, client, message):
-#             if message.text:
-#                 text = message.text.strip().encode("utf-8").decode("utf-8")
-#                 username = client.me.username or ""
-#                 prefixes = await self.get_prefix(client.me.id)
-
-#                 if not text:
-#                     return False
-
-#                 for prefix in prefixes:
-#                     if not text.startswith(prefix):
-#                         continue
-
-#                     without_prefix = text[len(prefix):]
-
-#                     for command in cmd.split("|"):
-#                         if not re.match(
-#                             rf"^(?:{command}(?:@?{username})?)(?:\s|$)",
-#                             without_prefix,
-#                             flags=re.IGNORECASE | re.UNICODE,
-#                         ):
-#                             continue
-
-#                         without_command = re.sub(
-#                             rf"{command}(?:@?{username})?\s?",
-#                             "",
-#                             without_prefix,
-#                             count=1,
-#                             flags=re.IGNORECASE | re.UNICODE,
-#                         )
-#                         message.command = [command] + [
-#                             re.sub(r"\\([\"'])", r"\1", m.group(2) or m.group(3) or "")
-#                             for m in command_re.finditer(without_command)
-#                         ]
-
-#                         return True
-
-#                 return False
-
-#         return filters.create(func)
-
-#     async def start(self):
-#         await super().start()
-#         await self.call_py.start()
-#         handler = await get_pref(self.me.id)
-#         if handler:
-#             self._prefix[self.me.id] = handler
-#         else:
-#             self._prefix[self.me.id] = ["."]
-#         self._ubot.append(self)
-#         self._get_my_id.append(self.me.id)
-#         self._translate[self.me.id] = "id"
-#         print(f"[INFO] - ({self.me.id}) - STARTED")
-
-
-# bot = Bot(
-#     name="GooUbot",
-#     bot_token=BOT_TOKEN,
-#     api_id=API_ID,
-#     api_hash=API_HASH,
-#     in_memory=True,
-# )
-
-# ubot = Ubot(name="GooUbot")
-
-# from GooUbot.core.database import *
-# from GooUbot.core.function import *
-# from GooUbot.core.helpers import *
