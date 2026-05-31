@@ -2,8 +2,11 @@ import asyncio
 import sys
 
 # ==========================
-# UVLOOP SAFE INSTALL
+# SAFE EVENT LOOP (WAJIB FIX PYROGRAM + UVLOOP)
 # ==========================
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+
 if sys.platform != "win32":
     try:
         import uvloop
@@ -16,21 +19,20 @@ import logging
 import os
 import re
 
+from aiohttp import ClientSession
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
 from pyrogram.handlers import CallbackQueryHandler, MessageHandler
 from pyrogram.types import Message
 from pytgcalls import PyTgCalls
-from pytgcalls import filters as fl
 from pyromod import listen
+
 from GooUbot.config import *
-from aiohttp import ClientSession
 
 
 # ==========================
 # LOGGING
 # ==========================
-
 class ConnectionHandler(logging.Handler):
     def emit(self, record):
         for X in ["OSError", "TimeoutError"]:
@@ -58,48 +60,43 @@ logging.getLogger("pytgcalls").setLevel(logging.WARNING)
 
 
 # ==========================
-# FIX: AIOHTTP SESSION (SAFE MODE)
+# AIOHTTP SESSION (SAFE)
 # ==========================
-
 aiosession = None
-
-async def init_session():
-    global aiosession
-    if aiosession is None:
-        aiosession = ClientSession()
 
 
 # ==========================
 # BOT CLIENT
 # ==========================
-
 class Bot(Client):
 
     def __init__(self, **kwargs):
+        kwargs["parse_mode"] = ParseMode.HTML
         super().__init__(**kwargs)
 
     def on_message(self, filters=None, group=-1):
         def decorator(func):
             self.add_handler(MessageHandler(func, filters), group)
             return func
-
         return decorator
 
     def on_callback_query(self, filters=None, group=-1):
         def decorator(func):
             self.add_handler(CallbackQueryHandler(func, filters), group)
             return func
-
         return decorator
 
     async def start(self):
+        global aiosession
+        if aiosession is None:
+            aiosession = ClientSession()
+
         await super().start()
 
 
 # ==========================
 # USERBOT CLIENT
 # ==========================
-
 class Ubot(Client):
     __module__ = "pyrogram.client"
 
@@ -110,6 +107,7 @@ class Ubot(Client):
     _get_my_peer = {}
 
     def __init__(self, **kwargs):
+        kwargs["parse_mode"] = ParseMode.HTML
         super().__init__(**kwargs)
         self.call_py = PyTgCalls(self)
 
@@ -118,7 +116,6 @@ class Ubot(Client):
             for ub in self._ubot:
                 ub.add_handler(MessageHandler(func, filters), group)
             return func
-
         return decorator
 
     def set_prefix(self, user_id, prefix):
@@ -173,14 +170,12 @@ class Ubot(Client):
 
     async def start(self):
         await super().start()
+
+        self.call_py = PyTgCalls(self)
         await self.call_py.start()
 
         handler = await get_pref(self.me.id)
-
-        if handler:
-            self._prefix[self.me.id] = handler
-        else:
-            self._prefix[self.me.id] = ["."]
+        self._prefix[self.me.id] = handler if handler else ["."]
 
         self._ubot.append(self)
         self._get_my_id.append(self.me.id)
@@ -192,7 +187,6 @@ class Ubot(Client):
 # ==========================
 # CLIENT INIT
 # ==========================
-
 bot = Bot(
     name="GooUbot",
     bot_token=BOT_TOKEN,
@@ -207,7 +201,6 @@ ubot = Ubot(name="GooUbot")
 # ==========================
 # INTERNAL IMPORTS
 # ==========================
-
 from GooUbot.core.database import *
 from GooUbot.core.function import *
 from GooUbot.core.helpers import *
