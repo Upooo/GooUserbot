@@ -20,7 +20,7 @@ class ConnectionHandler(logging.Handler):
     def emit(self, record):
         for X in ["OSError", "TimeoutError"]:
             if X in record.getMessage():
-                os.system(f"kill -9 {os.getpid()} && python3 -m GooUbot")
+                os.system(f"kill -9 {os.getpid()} && python3 -m IdolUbot")
 
 logger = logging.getLogger()
 logger.setLevel(logging.ERROR)
@@ -143,14 +143,14 @@ class Ubot(Client):
 
 
 bot = Bot(
-    name="GooUbot",
+    name="UselyUbot",
     bot_token=BOT_TOKEN,
     api_id=API_ID,
     api_hash=API_HASH,
     in_memory=True,
 )
 
-ubot = Ubot(name="GooUbot")
+ubot = Ubot(name="UselyUbot")
 
 from GooUbot.core.database import *
 from GooUbot.core.function import *
