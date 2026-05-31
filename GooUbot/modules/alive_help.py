@@ -178,7 +178,7 @@ async def user_help_inline(client, inline_query):
     <b>ᴜsᴇʀ : <a href=tg://user?id={inline_query.from_user.id}>{inline_query.from_user.first_name} {inline_query.from_user.last_name or ''}</a></b>
     <b>ᴘʀᴇꜰɪx : {' '.join(SH)}</b>
     <b>ᴍᴏᴅᴜʟᴇ : {len(HELP_COMMANDS)}</b></blockquote>
-<blockquote><b>powered by : @nathanidol</b></blockquote>
+<blockquote><b>powered by : @goofounder</b></blockquote>
 """
     results = [InlineQueryResultArticle(
         title="Help Menu!",
@@ -208,7 +208,7 @@ async def help_callback(client, callback_query):
     <b>ᴜsᴇʀ : <a href=tg://user?id={callback_query.from_user.id}>{callback_query.from_user.first_name} {callback_query.from_user.last_name or ''}</a></b>
     <b>ᴘʀᴇꜰɪx : {' '.join(SH)}</b>
     <b>ᴍᴏᴅᴜʟᴇ : {len(HELP_COMMANDS)}</b></blockquote>
-<blockquote><b>powered by : @nathanidol</b></blockquote>
+<blockquote><b>powered by : @goofounder</b></blockquote>
 """
 
     if mod_match:
@@ -217,7 +217,7 @@ async def help_callback(client, callback_query):
         button = [[InlineKeyboardButton("↩️", callback_data="help_back")]]
         await callback_query.edit_message_text(
             text=text 
-            + '\n<blockquote><u><b>powered by : @nathanidol</b></u></blockquote>',
+            + '\n<blockquote><u><b>powered by : @goofounder</b></u></blockquote>',
             reply_markup=InlineKeyboardMarkup(button),
             disable_web_page_preview=True,
         )

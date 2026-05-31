@@ -17,7 +17,7 @@ LOGS_MAKER_UBOT = list(map(int, os.getenv("LOGS_MAKER_UBOT", "-1002864434436").s
 LOGS_ON_UBOT = int(os.getenv("LOGS_ON_UBOT", "-1002580967407"))
 
 MONGO_URL = os.getenv("MONGO_URL")
-NAMA_DB = os.getenv("NAMA_DB", "GooUserbot")
+NAMA_DB = os.getenv("NAMA_DB", "UselyubotDB")
 
 GooTeam = [
     8101612045,

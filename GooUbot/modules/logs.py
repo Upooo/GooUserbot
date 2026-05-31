@@ -280,7 +280,7 @@ async def logs_toggle(client, message):
                 me = await client.get_me()
                 created = await client.create_supergroup(
                     title=f"ʟᴏɢꜱ {bot.me.full_name}",
-                    description="Jangan keluar/hapus grup log ini, Powered by: @nathanidol"
+                    description="Jangan keluar/hapus grup log ini, Powered by: @goofounder"
                 )
                 group_id = created.id
 

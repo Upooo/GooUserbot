@@ -1,28 +1,57 @@
 from time import time as waktunya
 
+
 start_time = waktunya()
 
 
 async def get_time(seconds):
-    count = 0
-    up_time = ""
-    time_list = []
-    time_suffix_list = ["s", "ᴍ", "ʜ", "ᴅ"]
+    seconds = int(seconds)
 
-    while count < 4:
-        count += 1
-        remainder, result = divmod(seconds, 60) if count < 3 else divmod(seconds, 24)
-        if seconds == 0 and remainder == 0:
-            break
-        time_list.append(int(result))
-        seconds = int(remainder)
+    if seconds <= 0:
+        return "0s"
 
-    for i in range(len(time_list)):
-        time_list[i] = str(time_list[i]) + time_suffix_list[i]
-    if len(time_list) == 4:
-        up_time += time_list.pop() + ":"
+    time_units = [
+        ("ᴅ", 86400),
+        ("ʜ", 3600),
+        ("ᴍ", 60),
+        ("s", 1),
+    ]
 
-    time_list.reverse()
-    up_time += ":".join(time_list)
+    result = []
 
-    return up_time
+    for suffix, unit_seconds in time_units:
+        value, seconds = divmod(seconds, unit_seconds)
+
+        if value:
+            result.append(f"{value}{suffix}")
+
+    return ":".join(result)
+
+# from time import time as waktunya
+
+# start_time = waktunya()
+
+
+# async def get_time(seconds):
+#     count = 0
+#     up_time = ""
+#     time_list = []
+#     time_suffix_list = ["s", "ᴍ", "ʜ", "ᴅ"]
+
+#     while count < 4:
+#         count += 1
+#         remainder, result = divmod(seconds, 60) if count < 3 else divmod(seconds, 24)
+#         if seconds == 0 and remainder == 0:
+#             break
+#         time_list.append(int(result))
+#         seconds = int(remainder)
+
+#     for i in range(len(time_list)):
+#         time_list[i] = str(time_list[i]) + time_suffix_list[i]
+#     if len(time_list) == 4:
+#         up_time += time_list.pop() + ":"
+
+#     time_list.reverse()
+#     up_time += ":".join(time_list)
+
+#     return up_time
