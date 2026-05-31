@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sys
+import asyncio
 
 import uvloop
 from aiohttp import ClientSession
@@ -14,9 +15,7 @@ from pytgcalls import PyTgCalls
 
 from GooUbot.config import *
 
-
 uvloop.install()
-
 
 # ==========================
 # LOGGING
@@ -31,13 +30,8 @@ class ConnectionHandler(logging.Handler):
     def emit(self, record):
         message = record.getMessage()
 
-        if any(
-            error in message
-            for error in self.RESTART_ERRORS
-        ):
-            logging.error(
-                "Connection issue detected. Restarting..."
-            )
+        if any(error in message for error in self.RESTART_ERRORS):
+            logging.error("Connection issue detected. Restarting...")
 
             os.execv(
                 sys.executable,
@@ -61,16 +55,13 @@ connection_handler = ConnectionHandler()
 logger.addHandler(stream_handler)
 logger.addHandler(connection_handler)
 
-logging.getLogger(
-    "pytgcalls"
-).setLevel(logging.WARNING)
-
+logging.getLogger("pytgcalls").setLevel(logging.WARNING)
 
 # ==========================
-# HTTP SESSION
+# HTTP SESSION (FIXED)
 # ==========================
 
-aiosession = ClientSession()
+aiosession = None
 
 
 # ==========================
@@ -79,44 +70,34 @@ aiosession = ClientSession()
 
 class Bot(Client):
 
-    def on_message(
-        self,
-        filters=None,
-        group=-1
-    ):
+    def on_message(self, filters=None, group=-1):
         def decorator(func):
-            self.add_handler(
-                MessageHandler(
-                    func,
-                    filters
-                ),
-                group
-            )
+            self.add_handler(MessageHandler(func, filters), group)
             return func
-
         return decorator
 
-    def on_callback_query(
-        self,
-        filters=None,
-        group=-1
-    ):
+    def on_callback_query(self, filters=None, group=-1):
         def decorator(func):
-            self.add_handler(
-                CallbackQueryHandler(
-                    func,
-                    filters
-                ),
-                group
-            )
+            self.add_handler(CallbackQueryHandler(func, filters), group)
             return func
-
         return decorator
 
     async def start(self):
+        global aiosession
+
         await super().start()
 
+        # FIX: session dibuat setelah event loop aktif
+        if aiosession is None:
+            aiosession = ClientSession()
+
     async def stop(self, *args):
+        global aiosession
+
+        if aiosession:
+            await aiosession.close()
+            aiosession = None
+
         await super().stop()
 
 
@@ -126,8 +107,7 @@ class Bot(Client):
 
 class Ubot(Client):
     """
-    Shared state between
-    all running ubot instances.
+    Shared state between all running ubot instances.
     """
 
     _ubot = []
@@ -140,111 +120,57 @@ class Ubot(Client):
         super().__init__(**kwargs)
         self.call_py = PyTgCalls(self)
 
-    def on_message(
-        self,
-        filters=None,
-        group=-1
-    ):
+    def on_message(self, filters=None, group=-1):
         def decorator(func):
             for ub in self._ubot:
-                ub.add_handler(
-                    MessageHandler(
-                        func,
-                        filters
-                    ),
-                    group
-                )
+                ub.add_handler(MessageHandler(func, filters), group)
             return func
-
         return decorator
 
-    def set_prefix(
-        self,
-        user_id,
-        prefix
-    ):
+    def set_prefix(self, user_id, prefix):
         self._prefix[user_id] = prefix
 
-    async def get_prefix(
-        self,
-        user_id
-    ):
-        return self._prefix.get(
-            user_id,
-            ["."]
-        )
+    async def get_prefix(self, user_id):
+        return self._prefix.get(user_id, ["."])
 
     def cmd_prefix(self, cmd):
+        command_re = re.compile(r"([\"'])(.*?)(?<!\\)\1|(\S+)")
 
-        command_re = re.compile(
-            r"([\"'])(.*?)(?<!\\)\1|(\S+)"
-        )
-
-        async def func(
-            _,
-            client,
-            message
-        ):
+        async def func(_, client, message):
             if not message.text:
                 return False
 
             text = message.text.strip()
-
             if not text:
                 return False
 
-            username = (
-                client.me.username
-                or ""
-            )
-
-            prefixes = await self.get_prefix(
-                client.me.id
-            )
+            username = client.me.username or ""
+            prefixes = await self.get_prefix(client.me.id)
 
             for prefix in prefixes:
-
                 if not text.startswith(prefix):
                     continue
 
-                without_prefix = text[
-                    len(prefix):
-                ]
+                without_prefix = text[len(prefix):]
 
                 for command in cmd.split("|"):
+                    escaped_command = re.escape(command)
 
-                    escaped_command = re.escape(
-                        command
-                    )
-
-                    pattern = (
-                        rf"^(?:"
-                        rf"{escaped_command}"
-                        rf"(?:@?{username})?"
-                        rf")(?:\s|$)"
-                    )
+                    pattern = rf"^(?:{escaped_command}(?:@?{username})?)(?:\s|$)"
 
                     if not re.match(
                         pattern,
                         without_prefix,
-                        flags=(
-                            re.IGNORECASE
-                            | re.UNICODE
-                        ),
+                        flags=(re.IGNORECASE | re.UNICODE),
                     ):
                         continue
 
                     without_command = re.sub(
-                        rf"{escaped_command}"
-                        rf"(?:@?{username})?"
-                        rf"\s?",
+                        rf"{escaped_command}(?:@?{username})?\s?",
                         "",
                         without_prefix,
                         count=1,
-                        flags=(
-                            re.IGNORECASE
-                            | re.UNICODE
-                        ),
+                        flags=(re.IGNORECASE | re.UNICODE),
                     )
 
                     message.command = [
@@ -253,15 +179,9 @@ class Ubot(Client):
                         re.sub(
                             r"\\([\"'])",
                             r"\1",
-                            (
-                                m.group(2)
-                                or m.group(3)
-                                or ""
-                            ),
+                            (m.group(2) or m.group(3) or ""),
                         )
-                        for m in command_re.finditer(
-                            without_command
-                        )
+                        for m in command_re.finditer(without_command)
                     ]
 
                     return True
@@ -272,33 +192,18 @@ class Ubot(Client):
 
     async def start(self):
         await super().start()
-
         await self.call_py.start()
 
-        handler = await get_pref(
-            self.me.id
-        )
+        handler = await get_pref(self.me.id)
 
-        self._prefix[self.me.id] = (
-            handler
-            if handler
-            else ["."]
-        )
+        self._prefix[self.me.id] = handler if handler else ["."]
 
         self._ubot.append(self)
-        self._get_my_id.append(
-            self.me.id
-        )
+        self._get_my_id.append(self.me.id)
 
-        self._translate[
-            self.me.id
-        ] = "id"
+        self._translate[self.me.id] = "id"
 
-        print(
-            f"[INFO] - "
-            f"({self.me.id}) "
-            f"- STARTED"
-        )
+        print(f"[INFO] - ({self.me.id}) - STARTED")
 
     async def stop(self, *args):
         try:
@@ -321,9 +226,7 @@ bot = Bot(
     in_memory=True,
 )
 
-ubot = Ubot(
-    name="GooUbot"
-)
+ubot = Ubot(name="GooUbot")
 
 
 # ==========================
@@ -333,7 +236,6 @@ ubot = Ubot(
 from GooUbot.core.database import *
 from GooUbot.core.function import *
 from GooUbot.core.helpers import *
-
 
 # import uvloop
 
