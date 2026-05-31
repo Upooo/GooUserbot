@@ -1,6 +1,14 @@
-import uvloop
+import asyncio
+asyncio.set_event_loop(asyncio.new_event_loop())
 
-uvloop.install()
+import sys
+
+if sys.platform != "win32":
+    import uvloop
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+
+# BARU IMPORT PYROGRAM
+from pyrogram import Client, filters
 
 import logging
 import os

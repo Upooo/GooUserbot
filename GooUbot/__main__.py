@@ -2,7 +2,6 @@ import signal
 from GooUbot.core.database.userbot import *
 import tornado.ioloop
 import tornado.platform.asyncio
-from pyrogram import Client
 from GooUbot import *
 
 async def shutdown(signal, loop):
