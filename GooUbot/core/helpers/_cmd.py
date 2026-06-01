@@ -134,13 +134,13 @@ class PY:
             command_filter = ubot.cmd_prefix(command)
             @ubot.on_message(command_filter)
             async def wrapped_func(client, message):
-                sender_id = None
-                if message.from_user:
-                    sender_id = message.from_user.id
-                elif message.sender_chat:
-                    sender_id = client.me.id
-                else:
+                
+                if message.sender_chat:
                     return
+                    
+                if not  message.from_user:
+                    return
+                sender_id = message.from_user.id
                 if sudo:
                     sudo_id = await get_list_from_vars(client.me.id, "SUDO_USER", "ID_NYA")
                     if client.me.id not in sudo_id:

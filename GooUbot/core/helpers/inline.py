@@ -103,20 +103,20 @@ class BTN:
         if not message.from_user.id == OWNER_ID:
             button = [ 
                 [   
-                    KeyboardButton("🛠 Pasang Userbot"),
+                    KeyboardButton("Pasang Userbot"),
                 ],
                 [
-                    KeyboardButton("🔍 Status Akun"),
-                    KeyboardButton("✂️ Lihat Fitur")
+                    KeyboardButton("Status Akun"),
+                    KeyboardButton("Lihat Fitur")
                 ],
                 [
-                    KeyboardButton("📢 Syarat dan Ketentuan")
+                    KeyboardButton("Syarat dan Ketentuan")
                 ],
                 [
-                    KeyboardButton("⁉️ Informasi Bot"),
+                    KeyboardButton("Informasi Bot"),
                 ],
                 [
-                    KeyboardButton("💬 Support Group")
+                    KeyboardButton("Support Group")
                 ]
             ]
         else:
