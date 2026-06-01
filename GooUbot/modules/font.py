@@ -6,6 +6,11 @@ from pyrogram.types import (
     InlineKeyboardButton,
 )
 
+from GooUbot.core.helpers.font_help import (
+    gens_font,
+    query_fonts,
+)
+
 __MODULE__ = "font"
 __HELP__ = """
 <blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ꜰᴏɴᴛ--</b></blockquote>
@@ -43,6 +48,7 @@ def build_font_markup(page: int, text_id: str):
             )
         )
 
+        # 2 tombol per row
         if len(temp) == 2:
             rows.append(temp)
             temp = []
