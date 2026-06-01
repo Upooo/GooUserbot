@@ -32,7 +32,7 @@ async def _(client, message):
 @PY.INLINE("^get_font")
 async def _(client, inline_query):
     get_id = int(inline_query.query.split(None, 1)[1])
-    buttons = InlineKeyboard(row_width=3)
+    buttons = InlineKeyboardMarkup(row_width=3)
     keyboard = []
     for X in query_fonts[0]:
         keyboard.append(
@@ -77,7 +77,7 @@ async def _(client, callback_query):
 async def _(client, callback_query):
     try:
         get_id = int(callback_query.data.split()[1])
-        buttons = InlineKeyboard(row_width=3)
+        buttons = InlineKeyboardMarkup(row_width=3)
         keyboard = []
         for X in query_fonts[1]:
             keyboard.append(
@@ -96,7 +96,7 @@ async def _(client, callback_query):
 async def _(client, callback_query):
     try:
         get_id = int(callback_query.data.split()[1])
-        buttons = InlineKeyboard(row_width=3)
+        buttons = InlineKeyboardMarkup(row_width=3)
         keyboard = []
         for X in query_fonts[0]:
             keyboard.append(
