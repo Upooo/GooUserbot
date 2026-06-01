@@ -1,4 +1,3 @@
-```python
 from uuid import uuid4
 
 from GooUbot import *
@@ -229,4 +228,3 @@ async def font_page(client, callback_query):
             str(error),
             show_alert=True
         )
-```
