@@ -23,7 +23,7 @@ __HELP__ = """
 FONT_CACHE = {}
 
 
-def save_text(text):
+def save_font_text(text: str):
     key = str(uuid4())[:8]
     FONT_CACHE[key] = text
 
@@ -35,10 +35,10 @@ def save_text(text):
 
 
 # ==========================================================
-# BUTTON BUILDER
+# BUILD BUTTONS
 # ==========================================================
 
-def build_font_markup(page, text_id):
+def build_font_markup(page: int, text_id: str):
     rows = []
     temp = []
 
@@ -47,12 +47,12 @@ def build_font_markup(page, text_id):
     for name, style in fonts:
         temp.append(
             InlineKeyboardButton(
-                name,
+                text=name,
                 callback_data=f"font|{style}|{text_id}"
             )
         )
 
-        # 2 tombol per baris
+        # 2 tombol per row
         if len(temp) == 2:
             rows.append(temp)
             temp = []
@@ -60,10 +60,10 @@ def build_font_markup(page, text_id):
     if temp:
         rows.append(temp)
 
-    nav = []
+    nav_buttons = []
 
     if page > 0:
-        nav.append(
+        nav_buttons.append(
             InlineKeyboardButton(
                 "⬅️ Prev",
                 callback_data=f"fontpage|{page-1}|{text_id}"
@@ -71,15 +71,15 @@ def build_font_markup(page, text_id):
         )
 
     if page < len(query_fonts) - 1:
-        nav.append(
+        nav_buttons.append(
             InlineKeyboardButton(
                 "Next ➡️",
                 callback_data=f"fontpage|{page+1}|{text_id}"
             )
         )
 
-    if nav:
-        rows.append(nav)
+    if nav_buttons:
+        rows.append(nav_buttons)
 
     return InlineKeyboardMarkup(rows)
 
@@ -93,28 +93,30 @@ def build_font_markup(page, text_id):
 async def font_cmd(client, message):
     text = None
 
+    # reply text
     if (
         message.reply_to_message
         and message.reply_to_message.text
     ):
         text = message.reply_to_message.text
 
+    # arg text
     elif len(message.command) > 1:
         text = message.text.split(None, 1)[1]
 
     if not text:
-        return await message.reply(
-            "reply text atau kasih text dulu."
+        return await message.reply_text(
+            "Reply text atau kasih text dulu."
         )
 
-    text_id = save_text(text)
+    text_id = save_font_text(text)
 
     markup = build_font_markup(
         page=0,
         text_id=text_id
     )
 
-    await message.reply(
+    await message.reply_text(
         "Pilih font dibawah 👇",
         reply_markup=markup
     )
@@ -127,6 +129,7 @@ async def font_cmd(client, message):
 @PY.CALLBACK("^font\\|")
 async def font_callback(client, callback_query):
     try:
+        # jawab callback biar gak loading terus
         await callback_query.answer()
 
         _, style, text_id = (
@@ -137,7 +140,7 @@ async def font_callback(client, callback_query):
 
         if not text:
             return await callback_query.edit_message_text(
-                "Text expired, coba ulang command."
+                "⚠️ Text expired, coba ulang command."
             )
 
         result = gens_font(style, text)
@@ -169,8 +172,8 @@ async def font_page(client, callback_query):
         page = int(page)
 
         markup = build_font_markup(
-            page,
-            text_id
+            page=page,
+            text_id=text_id
         )
 
         await callback_query.edit_message_reply_markup(
