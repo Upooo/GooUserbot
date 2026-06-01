@@ -38,7 +38,7 @@ def build_font_markup(page: int, text_id: str):
     rows = []
     temp = []
 
-    fonts = list(query_fonts[page].items())
+    fonts = query_fonts[page].items()
 
     for name, style in fonts:
         temp.append(
@@ -48,7 +48,6 @@ def build_font_markup(page: int, text_id: str):
             )
         )
 
-        # 2 tombol per row
         if len(temp) == 2:
             rows.append(temp)
             temp = []
