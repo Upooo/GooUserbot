@@ -4,8 +4,6 @@ from GooUbot import *
 from pyrogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
-    InlineQueryResultArticle,
-    InputTextMessageContent
 )
 
 __MODULE__ = "font"
@@ -14,22 +12,22 @@ __HELP__ = """
 
 <blockquote>
 <b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}font</code>
-🦠 ᴋᴇᴛ : ʀᴇᴘʟʏ text / kasih text buat ubah font.
+🦠 ᴋᴇᴛ : reply text / kasih text buat ubah font.
 </blockquote>
 """
 
 # ==========================================================
-# CACHE TEXT
+# CACHE
 # ==========================================================
 
 FONT_CACHE = {}
 
 
-def save_font_text(text: str):
+def save_text(text):
     key = str(uuid4())[:8]
     FONT_CACHE[key] = text
 
-    # anti memory leak kecil-kecilan
+    # anti memory leak kecil
     if len(FONT_CACHE) > 500:
         FONT_CACHE.pop(next(iter(FONT_CACHE)))
 
@@ -37,14 +35,14 @@ def save_font_text(text: str):
 
 
 # ==========================================================
-# BUILD BUTTONS
+# BUTTON BUILDER
 # ==========================================================
 
-def build_font_markup(page: int, text_id: str):
-    fonts = list(query_fonts[page].items())
-
+def build_font_markup(page, text_id):
     rows = []
     temp = []
+
+    fonts = list(query_fonts[page].items())
 
     for name, style in fonts:
         temp.append(
@@ -54,6 +52,7 @@ def build_font_markup(page: int, text_id: str):
             )
         )
 
+        # 2 tombol per baris
         if len(temp) == 2:
             rows.append(temp)
             temp = []
@@ -108,71 +107,26 @@ async def font_cmd(client, message):
             "reply text atau kasih text dulu."
         )
 
-    try:
-        x = await client.get_inline_bot_results(
-            bot.me.username,
-            f"get_font {text}"
-        )
+    text_id = save_text(text)
 
-        await message.reply_inline_bot_result(
-            x.query_id,
-            x.results[0].id
-        )
+    markup = build_font_markup(
+        page=0,
+        text_id=text_id
+    )
 
-    except Exception as error:
-        await message.reply(
-            f"<b>Error:</b> <code>{error}</code>"
-        )
+    await message.reply(
+        "Pilih font dibawah 👇",
+        reply_markup=markup
+    )
 
 
 # ==========================================================
-# INLINE
-# ==========================================================
-
-@PY.INLINE("^get_font")
-async def font_inline(client, inline_query):
-    try:
-        parts = inline_query.query.split(None, 1)
-
-        if len(parts) < 2:
-            return await client.answer_inline_query(
-                inline_query.id,
-                results=[],
-                cache_time=0
-            )
-
-        text = parts[1]
-        text_id = save_font_text(text)
-
-        markup = build_font_markup(0, text_id)
-
-        await client.answer_inline_query(
-            inline_query.id,
-            cache_time=0,
-            results=[
-                InlineQueryResultArticle(
-                    title="Font Generator",
-                    description="Klik untuk pilih font",
-                    input_message_content=InputTextMessageContent(
-                        "Pilih font dibawah 👇"
-                    ),
-                    reply_markup=markup
-                )
-            ]
-        )
-
-    except Exception as e:
-        print(f"INLINE ERROR: {e}")
-
-
-# ==========================================================
-# CALLBACK FONT
+# FONT CALLBACK
 # ==========================================================
 
 @PY.CALLBACK("^font\\|")
 async def font_callback(client, callback_query):
     try:
-        # jawab callback dulu
         await callback_query.answer()
 
         _, style, text_id = (
@@ -200,7 +154,7 @@ async def font_callback(client, callback_query):
 
 
 # ==========================================================
-# PAGE SWITCH
+# PAGE CALLBACK
 # ==========================================================
 
 @PY.CALLBACK("^fontpage\\|")
@@ -220,7 +174,7 @@ async def font_page(client, callback_query):
         )
 
         await callback_query.edit_message_reply_markup(
-            markup
+            reply_markup=markup
         )
 
     except Exception as error:
