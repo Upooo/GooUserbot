@@ -2,6 +2,7 @@ import logging
 import os
 import re
 import sys
+from logging.handlers import RotatingFileHandler
 
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
@@ -14,15 +15,29 @@ from aiohttp import ClientSession
 from GooUbot.config import *
 
 # -------------------- Logging --------------------
+os.makedirs("logs", exist_ok=True)
+
 logger = logging.getLogger("GooUbot")
 logger.setLevel(logging.INFO)
+logger.handlers.clear()
 
 formatter = logging.Formatter(
-    "[%(levelname)s] - %(name)s - %(message)s", "%d-%b %H:%M"
+    "[%(asctime)s] [%(levelname)s] %(name)s - %(message)s",
+    "%d-%b %H:%M:%S",
 )
+
 stream_handler = logging.StreamHandler()
 stream_handler.setFormatter(formatter)
 logger.addHandler(stream_handler)
+
+file_handler = RotatingFileHandler(
+    "logs/goouserbot.log",
+    maxBytes=5 * 1024 * 1024,
+    backupCount=3,
+    encoding="utf-8",
+)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 logging.getLogger("pyrogram").setLevel(logging.WARNING)
 logging.getLogger("pytgcalls").setLevel(logging.WARNING)
