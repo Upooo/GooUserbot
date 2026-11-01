@@ -1,66 +1,62 @@
 # GooUserbot
 
-**Multi-Client Telegram Userbot** berbasis Kurigram (Pyrogram fork) + PyTgCalls.
+Multi-client Telegram userbot built on **Kurigram** + **PyTgCalls**.
 
-> Phase 1 & Phase 2 sudah selesai. Project sudah jauh lebih modern dan aman.
+Bisa jalanin banyak akun userbot dalam satu instance, plugin-based, support voice chat, dan data disimpan di MongoDB.
 
-## Fitur Utama
+## Features
 
-- Multi-client (banyak akun userbot dalam 1 instance)
-- Plugin system modular
-- Voice Chat support (PyTgCalls)
-- MongoDB untuk penyimpanan data
+- Multi-client (satu bot, banyak userbot)
+- Plugin system modular (60+ module)
+- Voice chat via PyTgCalls
+- MongoDB backend
 - Sistem expired / premium
-- Banyak module utility, admin, fun, dll
-- Graceful shutdown & better logging
-- Config validation saat startup
+- Graceful shutdown & config validation
 
 ## Requirements
 
 - Python 3.10+
 - MongoDB
-- FFmpeg (untuk voice chat & media)
+- FFmpeg (buat voice chat & media processing)
 
-## Instalasi Cepat
+## Setup
 
 ```bash
-# Clone repo
 git clone https://github.com/Upooo/GooUserbot.git
 cd GooUserbot
 
-# Buat virtual environment
 python3 -m venv venv
-source venv/bin/activate   # Linux/macOS
-# atau
-venv\\Scripts\\activate    # Windows
+source venv/bin/activate        # Linux / macOS
+# venv\Scripts\activate         # Windows
 
-# Install dependencies
 pip install -U pip
 pip install -r requirements.txt
 
-# Setup environment
 cp .env.example .env
-nano .env   # isi semua yang wajib
+# isi .env dulu sebelum jalanin
+```
 
-# Jalankan
+Isi minimal di `.env`:
+
+| Variable | Keterangan |
+|----------|------------|
+| `API_ID` | dari [my.telegram.org](https://my.telegram.org) |
+| `API_HASH` | dari [my.telegram.org](https://my.telegram.org) |
+| `BOT_TOKEN` | dari [@BotFather](https://t.me/BotFather) |
+| `OWNER_ID` | Telegram user ID kamu |
+| `MONGO_URL` | connection string MongoDB |
+
+Detail lengkap ada di `.env.example`.
+
+## Run
+
+```bash
 python3 -m GooUbot
 # atau
 bash start.sh
 ```
 
-## Environment Variables
-
-Lihat file `.env.example` untuk daftar lengkap. Yang **wajib** diisi:
-
-| Variable     | Keterangan                          |
-|--------------|-------------------------------------|
-| `API_ID`     | Dari https://my.telegram.org        |
-| `API_HASH`   | Dari https://my.telegram.org        |
-| `BOT_TOKEN`  | Dari @BotFather                     |
-| `OWNER_ID`   | Telegram ID kamu                    |
-| `MONGO_URL`  | Connection string MongoDB           |
-
-## Struktur Project
+## Project Structure
 
 ```
 GooUserbot/
@@ -72,7 +68,7 @@ GooUserbot/
 │   │   ├── database/
 │   │   ├── function/
 │   │   └── helpers/
-│   └── modules/          # 70+ plugin
+│   └── modules/
 ├── .env.example
 ├── requirements.txt
 ├── start.sh
@@ -81,42 +77,23 @@ GooUserbot/
 
 ## Roadmap
 
-### Phase 1 (Selesai)
-- [x] Hapus file sensitif (`cookies.txt`)
-- [x] Perbaiki `.gitignore`
-- [x] Bersihkan `requirements.txt`
-- [x] Amankan `config.py`
-- [x] Tambah `.env.example`
-- [x] README yang layak
+**Done**
+- Cleanup repo (hapus file sensitif, venv, dll)
+- Secure config via `.env`
+- Migrasi foundation ke Kurigram
+- Graceful shutdown, better logging, config validation
+- Fix event loop issues
 
-### Phase 2 (Selesai)
-- [x] Siap pakai **Kurigram** (drop-in replacement Pyrogram)
-- [x] Update struktur core (`__init__.py` & `__main__.py`)
-- [x] Graceful shutdown (tidak lagi `kill -9`)
-- [x] Hapus operasi berbahaya (`rm -rf *session*`)
-- [x] Config validation saat startup
-- [x] Better logging
-- [x] Pure asyncio (hapus Tornado)
-- [x] uvloop support
-- [x] Persiapan proxy per client
+**Next**
+- Audit & cleanup module
+- Proxy support per client
+- Docker
+- Perbaikan permission / sudo system
+- Support fitur Telegram terbaru
 
-### Phase 3 (Berikutnya - Big Update)
-- [ ] Audit & cleanup semua module
-- [ ] Proxy support penuh
-- [ ] Docker support
-- [ ] Perbaikan sudo / permission system
-- [ ] Update PyTgCalls lebih lanjut
-- [ ] Support fitur Telegram terbaru (Business, Topics, dll)
+## Notes
 
-## Peringatan
-
-Menggunakan userbot **melanggar** Terms of Service Telegram jika disalahgunakan (spam, bulk messaging, dll). Risiko yang mungkin terjadi:
-
-- FloodWait / Limit
-- Account restricted / frozen
-- Permanent ban
-
-Gunakan dengan bijak. Developer tidak bertanggung jawab atas segala bentuk penyalahgunaan.
+Userbot melanggar ToS Telegram kalau dipake buat spam atau abuse. Risiko sendiri: floodwait, restrict, sampai permanent ban. Pakai bijak.
 
 ## License
 
@@ -124,4 +101,4 @@ Apache License 2.0
 
 ---
 
-Made with ❤️ by [Upooo](https://github.com/Upooo)
+by [Upooo](https://github.com/Upooo)

@@ -1,20 +1,8 @@
-# ==========================
-# GooUserbot - Requirements
-# Phase 2 (Kurigram ready)
-# ==========================
-
-# Core MTProto (Kurigram = actively maintained Pyrogram fork)
+# Core
 kurigram[fast]>=2.2.0
-
-# Voice Chat
 py-tgcalls>=2.1.0
 ntgcalls>=1.2.1
-
-# Crypto & Performance
 TgCrypto>=1.2.5
-uvloop>=0.19.0
-
-# Conversation helper
 pyromod>=1.5
 
 # Config & Database
@@ -27,7 +15,7 @@ aiohttp>=3.9.0
 aiofiles>=24.1.0
 httpx[http2]>=0.27.0
 
-# Media & Download
+# Media
 yt-dlp
 Pillow>=10.0.0
 pymediainfo
@@ -54,10 +42,9 @@ gtts
 gpytranslate
 youtube-search-python
 dnspython
-
-# Optional
 telegraph>=2.2.0
 removebg
 
-# Custom dependency
+# Optional / custom
+uvloop>=0.19.0
 git+https://github.com/Zamssprprpk/Kutip
