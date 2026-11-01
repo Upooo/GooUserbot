@@ -4,11 +4,11 @@ import signal
 import sys
 
 # Set uvloop policy as early as possible
-try:
-    import uvloop
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-except ImportError:
-    pass
+#try:
+#    import uvloop
+#    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+#except ImportError:
+#    pass
 
 from GooUbot import (
     logger,
