@@ -1,47 +1,42 @@
-import os
-import json
-import asyncio
-import psutil
-# import speedtest
+__MODULE__ = "ping"
+__HELP__ = """
+<blockquote><b>Ping</b></blockquote>
+
+<blockquote><b>Perintah:</b> <code>{0}ping</code>
+Cek latency userbot ke server Telegram.</blockquote>
+"""
 
 from datetime import datetime
-from gc import get_objects
 from time import time
 
-from pyrogram.raw import *
 from pyrogram.raw.functions import Ping
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+
 from GooUbot import *
+
 
 @PY.UBOT("ping|pink")
 @PY.IDOL("cpink|ceponk|sepong")
 @PY.TOP_CMD
 async def _(client, message):
     start = datetime.now()
-    await client.invoke(Ping(ping_id=0))
+    try:
+        await client.invoke(Ping(ping_id=0))
+    except Exception:
+        pass
     end = datetime.now()
-    
+
+    delta_ms = round((end - start).total_seconds() * 1000, 2)
     uptime = await get_time((time() - start_time))
-    delta_ping_formatted = round((end - start).total_seconds() * 1000, 2)  # ← FIXED
 
     pong = await EMO.PING(client)
     tion = await EMO.MENTION(client)
     yubot = await EMO.UBOT(client)
-    pantek = await STR.PONG(client)
-    ngentod = await STR.OWNER(client)
-    kontol = await STR.UBOT(client)
 
-    babi = client.me.is_premium
-    if babi:
-        _ping = f"""
-<blockquote><b>{pong} {pantek} :</b> {delta_ping_formatted} ms</blockquote>
-<blockquote><b>{tion} {ngentod} :</b>  <code>{client.me.mention}</code>
-<b>{yubot} {kontol} : {bot.me.mention}</b></blockquote>
-"""
-    else:
-        _ping = f"""
-<blockquote><b>{pantek} :</b> {delta_ping_formatted} ms</blockquote>
-<blockquote><b>{ngentod} :</b>  <code>{client.me.mention}</code>
-<b>{kontol} : {bot.me.mention}</b></blockquote>
-"""
-    await message.reply(_ping)
+    text = f"""
+<blockquote><b>{pong}Ping:</b> <code>{delta_ms} ms</code>
+<b>{tion}User:</b> {client.me.mention}
+<b>{yubot}Bot:</b> {bot.me.mention}
+<b>Uptime:</b> <code>{uptime}</code></blockquote>
+""".strip()
+
+    await message.reply(text)

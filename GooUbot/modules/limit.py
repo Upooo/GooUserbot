@@ -1,73 +1,74 @@
-from asyncio import sleep
-from pyrogram.raw.functions.messages import DeleteHistory, StartBot
-from pyrogram.errors.exceptions import *
-
-from GooUbot import *
-
 __MODULE__ = "limit"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ʟɪᴍɪᴛ--</b></blockquote>
+<blockquote><b>Limit Checker</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}limit</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢᴇᴄᴇᴋ sᴛᴀᴛᴜs ᴀᴋᴜɴ ᴀᴘᴀᴋᴀʜ ᴛᴇʀᴋᴇɴᴀ ʟɪᴍɪᴛ ᴀᴛᴀᴜ ᴛɪᴅᴀᴋ.</blockquote>
+<blockquote><b>Perintah:</b> <code>{0}limit</code>
+Cek apakah akun kena batasan spam / limit dari Telegram.</blockquote>
 """
+
+from asyncio import sleep
+
+from pyrogram.raw.functions.messages import DeleteHistory, StartBot
+
+from GooUbot import *
 
 
 @PY.UBOT("limit")
 @PY.IDOL("climit")
+@PY.TOP_CMD
 async def limit_cmd(client, message):
-    ggl = await EMO.GAGAL(client)
-    sks = await EMO.BERHASIL(client)
     prs = await EMO.PROSES(client)
-    pong = await EMO.PING(client)
-    tion = await EMO.MENTION(client)
-    yubot = await EMO.UBOT(client)
-    await client.unblock_user("SpamBot")
-    bot_info = await client.resolve_peer("SpamBot")
-    msg = await message.reply(f"<b>{prs}ᴍᴇᴍᴘʀᴏsᴇs...</b>")
-    response = await client.invoke(
-        StartBot(
-            bot=bot_info,
-            peer=bot_info,
-            random_id=client.rnd_id(),
-            start_param="start",
+    brhsl = await EMO.BERHASIL(client)
+    ggl = await EMO.GAGAL(client)
+
+    msg = await message.reply(f"{prs}Mengecek status limit...")
+
+    try:
+        await client.unblock_user("SpamBot")
+        bot_info = await client.resolve_peer("SpamBot")
+        response = await client.invoke(
+            StartBot(
+                bot=bot_info,
+                peer=bot_info,
+                random_id=client.rnd_id(),
+                start_param="start",
+            )
         )
-    )
-    await sleep(1)
-    await msg.delete()
-    status = await client.get_messages("SpamBot", response.updates[1].message.id + 1) 
-    if status and hasattr(status, "text"):
-        pjg = len(status.text)
-        print(pjg)
-        if pjg <= 100:
-            if client.me.is_premium:
-                text = f"""
-<blockquote>{pong}sᴛᴀᴛᴜs ᴀᴋᴜɴ ᴘʀᴇᴍɪᴜᴍ : ᴛʀᴜᴇ
-{tion}ʟɪᴍɪᴛ ᴄʜᴇᴄᴋ : ᴀᴋᴜɴ ᴀɴᴅᴀ ᴛɪᴅᴀᴋ ᴅɪʙᴀᴛᴀsɪ
-{yubot}ᴜʙᴏᴛ : {bot.me.mention}</blockquote>
-"""
-            else:
-                text = f"""
-<blockquote>sᴛᴀᴛᴜs ᴀᴋᴜɴ : ʙᴇʟɪ ᴘʀᴇᴍ ᴅᴜʟᴜ ʏᴀ
-ʟɪᴍɪᴛ ᴄʜᴇᴄᴋ : ᴀᴋᴜɴ ᴀɴᴅᴀ ᴛɪᴅᴀᴋ ᴅɪʙᴀᴛᴀsɪ
-ᴜʙᴏᴛ : {bot.me.mention}</blockquote>
-"""
-            await client.send_message(message.chat.id, text)
-            return await client.invoke(DeleteHistory(peer=bot_info, max_id=0, revoke=True))
+        await sleep(1.5)
+
+        status = await client.get_messages(
+            "SpamBot", response.updates[1].message.id + 1
+        )
+
+        if not status or not getattr(status, "text", None):
+            await msg.edit(f"{ggl}Gagal membaca balasan SpamBot.")
+            return
+
+        text = status.text or ""
+        # Heuristic: short reply usually means clean account
+        limited = len(text) > 100
+
+        if limited:
+            result = (
+                f"{ggl}<b>Status:</b> akun bermasalah / kena batasan\n"
+                f"<b>Detail:</b> cek @SpamBot untuk info lengkap"
+            )
         else:
-            if client.me.is_premium:
-                text = f"""
-<blockquote>{pong}sᴛᴀᴛᴜs ᴀᴋᴜɴ ᴘʀᴇᴍɪᴜᴍ : ᴛʀᴜᴇ
-{tion}ʟɪᴍɪᴛ ᴄʜᴇᴄᴋ : ᴀᴋᴜɴ ᴀɴᴅᴀ ʙᴇʀᴍᴀsᴀʟᴀʜ
-{yubot}ᴜʙᴏᴛ : {bot.me.mention}</blockquote>
-"""
-            else:
-                text = f"""
-<blockquote>sᴛᴀᴛᴜs ᴀᴋᴜɴ : ʙᴇʟɪ ᴘʀᴇᴍ ᴅᴜʟᴜ ʏᴀ
-ʟɪᴍɪᴛ ᴄʜᴇᴄᴋ : ᴀᴋᴜɴ ᴀɴᴅᴀ ʙᴇʀᴍᴀsᴀʟᴀʜ
-ᴜʙᴏᴛ : {bot.me.mention}</blockquote>
-"""
-            await client.send_message(message.chat.id, text)
-            return await client.invoke(DeleteHistory(peer=bot_info, max_id=0, revoke=True))
-    else:
-        print("Status tidak valid atau status.text tidak ada")
+            result = (
+                f"{brhsl}<b>Status:</b> akun aman\n"
+                f"<b>Limit:</b> tidak terdeteksi"
+            )
+
+        await msg.edit(
+            f"<blockquote>{result}\n"
+            f"<b>Userbot:</b> {bot.me.mention}</blockquote>"
+        )
+
+        try:
+            await client.invoke(DeleteHistory(peer=bot_info, max_id=0, revoke=True))
+        except Exception:
+            pass
+
+    except Exception as e:
+        logger.error(f"limit check failed: {e}")
+        await msg.edit(f"{ggl}Gagal cek limit:\n<code>{e}</code>")
