@@ -1,0 +1,9 @@
+services:
+  goouserbot:
+    build: .
+    container_name: goouserbot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
