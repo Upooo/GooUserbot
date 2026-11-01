@@ -29,10 +29,10 @@ logging.getLogger("pytgcalls").setLevel(logging.WARNING)
 logging.getLogger("ntgcalls").setLevel(logging.WARNING)
 
 # Lazy aiohttp session
-aiosession: ClientSession | None = None
+aiosession = None
 
 
-async def get_aiosession() -> ClientSession:
+async def get_aiosession():
     global aiosession
     if aiosession is None or aiosession.closed:
         aiosession = ClientSession()
@@ -171,13 +171,13 @@ def validate_config():
 
 validate_config()
 
-# These will be created inside the running loop in __main__.py
-bot: Bot = None
-ubot: Ubot = None
+# Placeholders - real instances created in __main__ inside the running loop
+bot = None
+ubot = None
 
 
 def init_clients():
-    """Create bot and ubot instances. Must be called inside a running event loop."""
+    """Create bot and ubot instances inside a running event loop."""
     global bot, ubot
     bot = Bot(
         name="GooUbot",
@@ -188,3 +188,9 @@ def init_clients():
     )
     ubot = Ubot(name="GooUbot")
     return bot, ubot
+
+
+# Import submodules (they may reference bot/ubot later at runtime)
+from GooUbot.core.database import *
+from GooUbot.core.function import *
+from GooUbot.core.helpers import *

@@ -1,32 +1,36 @@
 import asyncio
-import logging
 import signal
 import sys
 
+<<<<<<< HEAD
 # Set uvloop policy as early as possible
 #try:
 #    import uvloop
 #    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
 #except ImportError:
 #    pass
+=======
+# Optional: enable uvloop (can be disabled if causing issues)
+try:
+    import uvloop
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+except ImportError:
+    pass
+>>>>>>> 8abd285504f85e575961f17d721f160947e78f6e
 
 from GooUbot import (
     logger,
     get_aiosession,
     init_clients,
     Ubot,
-    validate_config,
 )
 from GooUbot.core.database.userbot import get_userbots, remove_ubot
 from GooUbot.core.function.plugins import loadPlugins
 from GooUbot.core.function.expired import expiredUserbots
 
 try:
-    from GooUbot.core.helpers.tools import bash, installPeer
+    from GooUbot.core.helpers.tools import installPeer
 except ImportError:
-    async def bash(cmd):
-        pass
-
     async def installPeer():
         pass
 
@@ -34,7 +38,7 @@ except ImportError:
 async def shutdown(bot, ubot):
     logger.info("Shutting down gracefully...")
 
-    for client in list(ubot._ubot):
+    for client in list(getattr(ubot, "_ubot", [])):
         try:
             await client.stop()
         except Exception as e:
@@ -55,14 +59,14 @@ async def shutdown(bot, ubot):
     logger.info("Shutdown complete.")
 
 
-async def start_userbots(ubot_cls):
+async def start_userbots():
     userbots = await get_userbots()
     logger.info(f"Found {len(userbots)} userbot(s) in database")
 
     for data in userbots:
         user_id = int(data["name"])
         try:
-            client = ubot_cls(
+            client = Ubot(
                 name=str(user_id),
                 api_id=data["api_id"],
                 api_hash=data["api_hash"],
@@ -81,20 +85,11 @@ async def start_userbots(ubot_cls):
 async def main():
     logger.info("Starting GooUserbot...")
 
-    # Create clients INSIDE the running loop
+    # Create clients inside the running event loop
     bot, ubot = init_clients()
 
-    # Import the rest after clients exist (for modules that do `from GooUbot import bot, ubot`)
-    import GooUbot
-    GooUbot.bot = bot
-    GooUbot.ubot = ubot
-
-    from GooUbot.core.database import *
-    from GooUbot.core.function import *
-    from GooUbot.core.helpers import *
-
     await bot.start()
-    await start_userbots(Ubot)
+    await start_userbots()
     await loadPlugins()
 
     try:
