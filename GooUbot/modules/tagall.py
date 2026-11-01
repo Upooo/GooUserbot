@@ -1,164 +1,37 @@
+__MODULE__ = "tagall"
+__HELP__ = """
+<blockquote><b>Tagall</b></blockquote>
+
+<blockquote><b>Perintah:</b> <code>{0}tagall</code> [teks]
+Tag anggota grup (5 per pesan, delay aman).</blockquote>
+
+<blockquote><b>Perintah:</b> <code>{0}batal</code>
+Batalkan tagall yang sedang jalan.</blockquote>
+"""
+
 import asyncio
 import random
 from random import shuffle
 
-
 from GooUbot import *
-
-
-
-__MODULE__ = "tagall"
-__HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴛᴀɢᴀʟʟ--</b></blockquote>
-
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}tagall</code>
-🦠 ᴋᴇᴛ : ᴍᴇʟᴀᴋᴜᴋᴀɴ ᴛᴀɢ ᴋᴇ ꜱᴇʟᴜʀᴜʜ ᴀɴɢɢᴏᴛᴀ ɢʀᴏᴜᴘ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}batal</code>
-🦠 ᴋᴇᴛ : ᴍᴇᴍʙᴀᴛᴀʟᴋᴀɴ ᴘʀᴏꜱᴇꜱ ᴛᴀɢ ʏᴀɴɢ ꜱᴇᴅᴀɴɢ ʙᴇʀᴊᴀʟᴀɴ.</blockquote>
-"""
-
-
-
 
 tagallgcid = []
 
-emoji_categories = {
-    "smileys": [
-        "😀",
-        "😃",
-        "😄",
-        "😁",
-        "😆",
-        "😅",
-        "😂",
-        "🤣",
-        "😊",
-        "😍",
-        "🥰",
-        "😘",
-        "😎",
-        "🥳",
-        "😇",
-        "🙃",
-        "😋",
-        "😛",
-        "🤪",
-    ],
-    "animals": [
-        "🐶",
-        "🐱",
-        "🐰",
-        "🐻",
-        "🐼",
-        "🦁",
-        "🐸",
-        "🦊",
-        "🦔",
-        "🦄",
-        "🐢",
-        "🐠",
-        "🐦",
-        "🦜",
-        "🦢",
-        "🦚",
-        "🦓",
-        "🐅",
-        "🦔",
-    ],
-    "food": [
-        "🍎",
-        "🍕",
-        "🍔",
-        "🍟",
-        "🍩",
-        "🍦",
-        "🍓",
-        "🥪",
-        "🍣",
-        "🍔",
-        "🍕",
-        "🍝",
-        "🍤",
-        "🥗",
-        "🥐",
-        "🍪",
-        "🍰",
-        "🍫",
-        "🥤",
-    ],
-    "nature": [
-        "🌲",
-        "🌺",
-        "🌞",
-        "🌈",
-        "🌊",
-        "🌍",
-        "🍁",
-        "🌻",
-        "🌸",
-        "🌴",
-        "🌵",
-        "🍃",
-        "🍂",
-        "🌼",
-        "🌱",
-        "🌾",
-        "🍄",
-        "🌿",
-        "🌳",
-    ],
-    "travel": [
-        "✈️",
-        "🚀",
-        "🚲",
-        "🚗",
-        "⛵",
-        "🏔️",
-        "🚁",
-        "🚂",
-        "🏍️",
-        "🚢",
-        "🚆",
-        "🛴",
-        "🛸",
-        "🛶",
-        "🚟",
-        "🚈",
-        "🛵",
-        "🛎️",
-        "🚔",
-    ],
-    "sports": [
-        "⚽",
-        "🏀",
-        "🎾",
-        "🏈",
-        "🎱",
-        "🏓",
-        "🥊",
-        "⛳",
-        "🏋️",
-        "🏄",
-        "🤸",
-        "🏹",
-        "🥋",
-        "🛹",
-        "🥏",
-        "🎯",
-        "🥇",
-        "🏆",
-        "🥅",
-    ],
-    "music": ["🎵", "🎶", "🎤", "🎧", "🎼", "🎸", "🥁", "🎷", "🎺", "🎻", "🪕", "🎹", "🔊"],
-    "celebration": ["🎉", "🎊", "🥳", "🎈", "🎁", "🍰", "🧁", "🥂", "🍾", "🎆", "🎇"],
-    "work": ["💼", "👔", "👓", "📚", "✏️", "📆", "🖥️", "🖊️", "📂", "📌", "📎"],
-    "emotions": ["❤️", "💔", "😢", "😭", "😠", "😡", "😊", "😃", "🙄", "😳", "😇", "😍"],
-}
+emoji_pool = [
+    "😀", "😁", "😂", "🤣", "😊", "😍", "🥰", "😘", "😎", "🥳",
+    "🐶", "🐱", "🐰", "🐻", "🐼", "🦁", "🦊", "🦄", "🐸",
+    "🍎", "🍕", "🍔", "🍩", "🍦", "🍓", "🍣",
+    "🌲", "🌺", "🌞", "🌈", "🌊", "🌻", "🌸",
+    "✈️", "🚀", "🚲", "🚗", "⛵",
+    "⚽", "🏀", "🎾", "🏈", "🎯", "🏆",
+    "🎵", "🎤", "🎧", "🎸",
+    "🎉", "🎊", "🎈", "🎁",
+    "❤️", "💔", "😢", "😭", "😡",
+]
 
 
 def emoji_random():
-    random_category = random.choice(tuple(emoji_categories.keys()))
-    return random.choice(emoji_categories[random_category])
+    return random.choice(emoji_pool)
 
 
 @PY.UBOT("tagall")
@@ -166,27 +39,31 @@ def emoji_random():
 @PY.GROUP
 async def _(client, message):
     if message.chat.id in tagallgcid:
-        return
+        return await message.reply("Tagall sudah berjalan di chat ini. Pakai <code>.batal</code>")
+
     tagallgcid.append(message.chat.id)
-    text = message.text.split(None, 1)[1] if len(message.text.split()) != 1 else ""
+    text = message.text.split(None, 1)[1] if len(message.command) > 1 else ""
+
     users = [
         f"<a href=tg://user?id={member.user.id}>{emoji_random()}</a>"
         async for member in message.chat.get_members()
         if not (member.user.is_bot or member.user.is_deleted)
     ]
     shuffle(users)
+
     m = message.reply_to_message or message
-    for output in [users[i : i + 5] for i in range(0, len(users), 5)]:
-        if message.chat.id not in tagallgcid:
-            break
-        await m.reply_text(
-            f"{text}\n\n{' '.join(output)}", quote=bool(message.reply_to_message)
-        )
-        await asyncio.sleep(2)
     try:
-        tagallgcid.remove(message.chat.id)
-    except Exception:
-        pass
+        for chunk in [users[i : i + 5] for i in range(0, len(users), 5)]:
+            if message.chat.id not in tagallgcid:
+                break
+            await m.reply_text(
+                f"{text}\n\n{' '.join(chunk)}".strip(),
+                quote=bool(message.reply_to_message),
+            )
+            await asyncio.sleep(2.5)
+    finally:
+        if message.chat.id in tagallgcid:
+            tagallgcid.remove(message.chat.id)
 
 
 @PY.UBOT("batal")
@@ -194,11 +71,10 @@ async def _(client, message):
 @PY.GROUP
 async def _(client, message):
     if message.chat.id not in tagallgcid:
-        return await message.reply_text(
-            "tidak ada perintah : tagall yang digunakan"
-        )
+        return await message.reply("Tidak ada tagall yang sedang berjalan.")
+
     try:
         tagallgcid.remove(message.chat.id)
-    except Exception:
+    except ValueError:
         pass
-    await message.reply_text("tagall berhasil dibatalkan")
+    await message.reply("Tagall dibatalkan.")

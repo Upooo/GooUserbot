@@ -1,55 +1,59 @@
-from GooUbot import *
-
 __MODULE__ = "control"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴄᴏɴᴛʀᴏʟ--</b></blockquote>
+<blockquote><b>Control</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}create & {0}createbot</code>
-🦠 ᴋᴇᴛ : ᴜɴᴛᴜᴋ ᴍᴇᴍʙᴜᴀᴛ ɢʀᴏᴜᴘ, ᴄʜᴀɴɴᴇʟ, ᴀᴛᴀᴜ ʙᴏᴛ ᴘᴀᴅᴀ ᴛᴇʟᴇɢʀᴀᴍ.</b></blockquote>
+<blockquote><b>Perintah:</b> <code>{0}create</code> [group/channel] [nama]
+Buat grup atau channel.</blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}emoji</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢᴀᴛᴜʀ ᴇᴍᴏᴊɪ ᴜꜱᴇʀʙᴏᴛ.</b></blockquote>
+<blockquote><b>Perintah:</b> <code>{0}createbot</code> [nama] [usernameBot]
+Request bot baru ke @BotFather.</blockquote>
 
-❏ ǫᴜᴇʀʏ:
-├ <code>{0}emoji pong</code>
-├ <code>{0}emoji owner</code>
-├ <code>{0}emoji ubot</code>
-├ <code>{0}emoji gcast</code>
-├ <code>{0}emoji sukses</code>
-├ <code>{0}emoji gagal</code>
-├ <code>{0}emoji proses</code>
-├ <code>{0}emoji group</code>
-├ <code>{0}emoji catatan</code>
-├ <code>{0}emoji waktu</code>
-╰ <code>{0}emoji alasan</code></blockquote>
+<blockquote><b>Perintah:</b> <code>{0}prefix</code> [simbol...]
+Set prefix command.</blockquote>
+
+<blockquote><b>Perintah:</b> <code>{0}emoji</code> [query] [emoji premium]
+Set custom emoji (butuh Premium).
+Query: pong, owner, ubot, proses, gcast, sukses, gagal, group, catatan, waktu, alasan, afk, menunggu</blockquote>
 """
+
+import asyncio
+
+from GooUbot import *
 
 
 @PY.UBOT("create")
 @PY.TOP_CMD
 async def _(client, message):
+    brhsl = await EMO.BERHASIL(client)
+    ggl = await EMO.GAGAL(client)
+    prs = await EMO.PROSES(client)
+
     if len(message.command) < 3:
         return await message.reply(
-            f"{message.text} [group/channel] [name/titlee]")
-    group_type = message.command[1]
-    split = message.command[2:]
-    group_name = " ".join(split)
-    xd = await message.reply("memproꜱeꜱ...")
-    desc = "Welcome To My " + ("Group" if group_type == "gc" else "Channel")
-    if group_type == "group":
-        _id = await client.create_supergroup(group_name, desc)
-        link = await client.get_chat(_id.id)
-        await xd.edit(
-            f"berhaꜱil membuat telegram grup: [{group_name}]({link.invite_link})",
+            f"{ggl}<code>{message.command[0]} [group/channel] [nama]</code>"
+        )
+
+    group_type = message.command[1].lower()
+    group_name = " ".join(message.command[2:])
+    status = await message.reply(f"{prs}Processing...")
+
+    desc = f"Welcome to my {'group' if group_type == 'group' else 'channel'}"
+
+    try:
+        if group_type == "group":
+            created = await client.create_supergroup(group_name, desc)
+        elif group_type == "channel":
+            created = await client.create_channel(group_name, desc)
+        else:
+            return await status.edit(f"{ggl}Type harus <code>group</code> atau <code>channel</code>.")
+
+        chat = await client.get_chat(created.id)
+        await status.edit(
+            f"{brhsl}Berhasil buat {group_type}: [{group_name}]({chat.invite_link})",
             disable_web_page_preview=True,
         )
-    elif group_type == "channel":
-        _id = await client.create_channel(group_name, desc)
-        link = await client.get_chat(_id.id)
-        await xd.edit(
-            f"berhaꜱil membuat telegram channel: [{group_name}]({link.invite_link})",
-            disable_web_page_preview=True,
-        )
+    except Exception as e:
+        await status.edit(f"{ggl}<code>{e}</code>")
 
 
 @PY.UBOT("prefix")
@@ -58,23 +62,23 @@ async def _(client, message):
     prs = await EMO.PROSES(client)
     brhsl = await EMO.BERHASIL(client)
     ggl = await EMO.GAGAL(client)
-    Tm = await message.reply(f"{prs}memproses...", quote=True)
+
+    status = await message.reply(f"{prs}Processing...", quote=True)
     if len(message.command) < 2:
-        return await Tm.edit(f"{ggl}{message.text} [simbol]")
-    else:
-        ub_prefix = []
-        for prefix in message.command[1:]:
-            if prefix.lower() == "none":
-                ub_prefix.append("")
-            else:
-                ub_prefix.append(prefix)
-        try:
-            client.set_prefix(message.from_user.id, ub_prefix)
-            await set_pref(message.from_user.id, ub_prefix)
-            parsed_prefix = " ".join(f"{prefix}" for prefix in ub_prefix)
-            return await Tm.edit(f"{brhsl}  Prefix diatur ke : {parsed_prefix}")
-        except Exception as error:
-            return await Tm.edit(str(error))
+        return await status.edit(f"{ggl}<code>{message.command[0]} [simbol...]</code>")
+
+    ub_prefix = []
+    for prefix in message.command[1:]:
+        ub_prefix.append("" if prefix.lower() == "none" else prefix)
+
+    try:
+        client.set_prefix(message.from_user.id, ub_prefix)
+        await set_pref(message.from_user.id, ub_prefix)
+        parsed = " ".join(ub_prefix) if any(ub_prefix) else "(none)"
+        return await status.edit(f"{brhsl}Prefix: <code>{parsed}</code>")
+    except Exception as error:
+        return await status.edit(f"{ggl}<code>{error}</code>")
+
 
 @PY.UBOT("emoji")
 @PY.TOP_CMD
@@ -82,93 +86,85 @@ async def _(client, message):
     prs = await EMO.PROSES(client)
     brhsl = await EMO.BERHASIL(client)
     ggl = await EMO.GAGAL(client)
-    try:
-        msg = await message.reply(f"{prs}memproses...", quote=True)
 
-        if not client.me.is_premium:
-            return await msg.edit(
-                f"{ggl}beli prem dulu anjg"
-            )
+    status = await message.reply(f"{prs}Processing...", quote=True)
 
-        if len(message.command) < 3:
-            return await msg.edit(f"{ggl}tolong masukkan query dan valeu nya")
+    if not client.me.is_premium:
+        return await status.edit(f"{ggl}Butuh Telegram Premium.")
 
-        query_mapping = {
-          "pong": "EMOJI_PING",
-          "owner": "EMOJI_MENTION",
-          "ubot": "EMOJI_USERBOT",
-          "proses": "EMOJI_PROSES",
-          "gcast": "EMOJI_BROADCAST",
-          "sukses": "EMOJI_BERHASIL",
-          "gagal": "EMOJI_GAGAL",
-          "catatan": "EMOJI_KETERANGAN",
-          "group": "EMOJI_GROUP",
-          "menunggu": "EMOJI_MENUNGGU",
-          "alasan": "EMOJI_ALASAN",
-          "waktu": "EMOJI_WAKTU",
-          "afk": "EMOJI_AFKA",
-        }
-        command, mapping, value = message.command[:3]
+    if len(message.command) < 3:
+        return await status.edit(
+            f"{ggl}<code>{message.command[0]} [query] [emoji]</code>"
+        )
 
-        if mapping.lower() in query_mapping:
-            query_var = query_mapping[mapping.lower()]
-            emoji_id = None
-            if message.entities:
-                for entity in message.entities:
-                    if entity.custom_emoji_id:
-                        emoji_id = entity.custom_emoji_id
-                        break
+    query_mapping = {
+        "pong": "EMOJI_PING",
+        "owner": "EMOJI_MENTION",
+        "ubot": "EMOJI_USERBOT",
+        "proses": "EMOJI_PROSES",
+        "gcast": "EMOJI_BROADCAST",
+        "sukses": "EMOJI_BERHASIL",
+        "gagal": "EMOJI_GAGAL",
+        "catatan": "EMOJI_KETERANGAN",
+        "group": "EMOJI_GROUP",
+        "menunggu": "EMOJI_MENUNGGU",
+        "alasan": "EMOJI_ALASAN",
+        "waktu": "EMOJI_WAKTU",
+        "afk": "EMOJI_AFKA",
+    }
 
-            if emoji_id:
-                await set_vars(client.me.id, query_var, emoji_id)
-                await msg.edit(
-                    f"{brhsl}emoJi berhasil di setting ke: <emoji id={emoji_id}>{value}</emoji>"
-                )
-            else:
-                await msg.edit(f"{ggl}tidak dapat menemukan emoji premium")
-        else:
-            await msg.edit(f"{ggl}mapping tidak ditemukan")
+    mapping = message.command[1].lower()
+    value = message.command[2]
 
-    except Exception as error:
-        await msg.edit(str(error))
+    if mapping not in query_mapping:
+        return await status.edit(f"{ggl}Query tidak dikenal. Cek <code>.help control</code>")
+
+    emoji_id = None
+    if message.entities:
+        for entity in message.entities:
+            if getattr(entity, "custom_emoji_id", None):
+                emoji_id = entity.custom_emoji_id
+                break
+
+    if not emoji_id:
+        return await status.edit(f"{ggl}Kirim custom emoji premium.")
+
+    await set_vars(client.me.id, query_mapping[mapping], emoji_id)
+    await status.edit(
+        f"{brhsl}Emoji <b>{mapping}</b> di-set ke <emoji id={emoji_id}>{value}</emoji>"
+    )
 
 
 @PY.UBOT("createbot")
 @PY.TOP_CMD
 async def create_bot_command(client, message):
-    # Ambil argumen dari pesan
-    args = message.text.split(maxsplit=2)
+    brhsl = await EMO.BERHASIL(client)
+    ggl = await EMO.GAGAL(client)
 
+    args = message.text.split(maxsplit=2)
     if len(args) < 3:
-        await message.reply_text(
-            "<blockquote><b>⚠️ Gunakan format: createbot [nama_bot] [username_bot]</b></blockquote>\n"
-            "Contoh: <code>.createbot MyNewBot MyNew_Bot</code>"
+        return await message.reply(
+            f"{ggl}<code>{message.command[0]} [nama] [usernameBot]</code>"
         )
-        return
 
     bot_name = args[1]
     bot_username = args[2]
 
     if not bot_username.endswith("Bot"):
-        await message.reply_text("❌ **Username bot harus diakhiri dengan 'Bot'.**")
-        return
+        return await message.reply(f"{ggl}Username harus diakhiri <code>Bot</code>.")
 
     try:
-        botfather = "@BotFather"
-        
-        # Kirim perintah ke BotFather
-        await client.send_message(botfather, "/newbot")
+        await client.send_message("BotFather", "/newbot")
         await asyncio.sleep(2)
-        await client.send_message(botfather, bot_name)
+        await client.send_message("BotFather", bot_name)
         await asyncio.sleep(2)
-        await client.send_message(botfather, bot_username)
+        await client.send_message("BotFather", bot_username)
 
-        await message.reply_text(
-            f"<blockquote><b>✅ **Permintaan pembuatan bot telah dikirim ke @BotFather!**\n"
-            f"🆕 **Nama Bot:** `{bot_name}`\n"
-            f"🔗 **Username:** @{bot_username}\n\n"
-            "Silakan cek @BotFather untuk melanjutkan proses konfigurasi.</blockquote></b>"
+        await message.reply(
+            f"{brhsl}Request dikirim ke @BotFather\n"
+            f"Nama: <code>{bot_name}</code>\n"
+            f"Username: @{bot_username}\n"
+            f"Cek chat BotFather untuk lanjut."
         )
-    
     except Exception as e:
-        await message.reply_text(f"⚠️ Terjadi kesalahan: {str(e)}")
+        await message.reply(f"{ggl}<code>{e}</code>")
