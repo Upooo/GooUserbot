@@ -134,6 +134,7 @@ class Ubot(Client):
         await self.call_py.start()
 
         try:
+            from GooUbot.core.database.pref import get_pref
             handler = await get_pref(self.me.id)
             self._prefix[self.me.id] = handler if handler else ["."]
         except Exception:
@@ -170,17 +171,20 @@ def validate_config():
 
 validate_config()
 
-# -------------------- Instances --------------------
-bot = Bot(
-    name="GooUbot",
-    bot_token=BOT_TOKEN,
-    api_id=API_ID,
-    api_hash=API_HASH,
-    in_memory=True,
-)
+# These will be created inside the running loop in __main__.py
+bot: Bot = None
+ubot: Ubot = None
 
-ubot = Ubot(name="GooUbot")
 
-from GooUbot.core.database import *
-from GooUbot.core.function import *
-from GooUbot.core.helpers import *
+def init_clients():
+    """Create bot and ubot instances. Must be called inside a running event loop."""
+    global bot, ubot
+    bot = Bot(
+        name="GooUbot",
+        bot_token=BOT_TOKEN,
+        api_id=API_ID,
+        api_hash=API_HASH,
+        in_memory=True,
+    )
+    ubot = Ubot(name="GooUbot")
+    return bot, ubot
