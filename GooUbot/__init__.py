@@ -171,26 +171,17 @@ def validate_config():
 
 validate_config()
 
-# Placeholders - real instances created in __main__ inside the running loop
-bot = None
-ubot = None
+# Create clients at module level (required because decorators run at import time)
+bot = Bot(
+    name="GooUbot",
+    bot_token=BOT_TOKEN,
+    api_id=API_ID,
+    api_hash=API_HASH,
+    in_memory=True,
+)
 
+ubot = Ubot(name="GooUbot")
 
-def init_clients():
-    """Create bot and ubot instances inside a running event loop."""
-    global bot, ubot
-    bot = Bot(
-        name="GooUbot",
-        bot_token=BOT_TOKEN,
-        api_id=API_ID,
-        api_hash=API_HASH,
-        in_memory=True,
-    )
-    ubot = Ubot(name="GooUbot")
-    return bot, ubot
-
-
-# Import submodules (they may reference bot/ubot later at runtime)
 from GooUbot.core.database import *
 from GooUbot.core.function import *
 from GooUbot.core.helpers import *

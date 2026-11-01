@@ -2,28 +2,15 @@ import asyncio
 import signal
 import sys
 
-<<<<<<< HEAD
-# Set uvloop policy as early as possible
-#try:
-#    import uvloop
-#    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-#except ImportError:
-#    pass
-=======
-# Optional: enable uvloop (can be disabled if causing issues)
-try:
-    import uvloop
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-except ImportError:
-    pass
->>>>>>> 8abd285504f85e575961f17d721f160947e78f6e
+# NOTE: uvloop temporarily disabled to avoid event loop conflicts
+# with current client initialization style.
+# try:
+#     import uvloop
+#     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+# except ImportError:
+#     pass
 
-from GooUbot import (
-    logger,
-    get_aiosession,
-    init_clients,
-    Ubot,
-)
+from GooUbot import bot, ubot, logger, get_aiosession, Ubot
 from GooUbot.core.database.userbot import get_userbots, remove_ubot
 from GooUbot.core.function.plugins import loadPlugins
 from GooUbot.core.function.expired import expiredUserbots
@@ -35,10 +22,10 @@ except ImportError:
         pass
 
 
-async def shutdown(bot, ubot):
+async def shutdown():
     logger.info("Shutting down gracefully...")
 
-    for client in list(getattr(ubot, "_ubot", [])):
+    for client in list(ubot._ubot):
         try:
             await client.stop()
         except Exception as e:
@@ -85,9 +72,6 @@ async def start_userbots():
 async def main():
     logger.info("Starting GooUserbot...")
 
-    # Create clients inside the running event loop
-    bot, ubot = init_clients()
-
     await bot.start()
     await start_userbots()
     await loadPlugins()
@@ -114,7 +98,7 @@ async def main():
             pass
 
     await stop_event.wait()
-    await shutdown(bot, ubot)
+    await shutdown()
 
 
 if __name__ == "__main__":
