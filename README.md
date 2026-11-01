@@ -1,8 +1,8 @@
 # GooUserbot
 
-**Multi-Client Telegram Userbot** berbasis Pyrogram/Kurigram + PyTgCalls.
+**Multi-Client Telegram Userbot** berbasis Kurigram (Pyrogram fork) + PyTgCalls.
 
-> Project ini sedang dalam tahap modernisasi (Phase 1 selesai).
+> Phase 1 & Phase 2 sudah selesai. Project sudah jauh lebih modern dan aman.
 
 ## Fitur Utama
 
@@ -12,6 +12,8 @@
 - MongoDB untuk penyimpanan data
 - Sistem expired / premium
 - Banyak module utility, admin, fun, dll
+- Graceful shutdown & better logging
+- Config validation saat startup
 
 ## Requirements
 
@@ -77,30 +79,34 @@ GooUserbot/
 └── README.md
 ```
 
-## Roadmap / Next Update
+## Roadmap
 
 ### Phase 1 (Selesai)
 - [x] Hapus file sensitif (`cookies.txt`)
 - [x] Perbaiki `.gitignore`
 - [x] Bersihkan `requirements.txt`
-- [x] Amankan `config.py` (hilangkan hardcoded secret)
+- [x] Amankan `config.py`
 - [x] Tambah `.env.example`
 - [x] README yang layak
 
-### Phase 2 (Berikutnya)
-- [ ] Migrasi penuh ke **Kurigram** (fork Pyrogram yang aktif)
-- [ ] Update PyTgCalls ke versi terbaru
-- [ ] Hapus folder virtualenv `Goo/` dari history repo
-- [ ] Tambah dukungan **proxy per client**
-- [ ] Perbaiki error handling & logging
-- [ ] Docker support
-- [ ] Audit & cleanup module yang jarang dipakai / berbahaya
+### Phase 2 (Selesai)
+- [x] Siap pakai **Kurigram** (drop-in replacement Pyrogram)
+- [x] Update struktur core (`__init__.py` & `__main__.py`)
+- [x] Graceful shutdown (tidak lagi `kill -9`)
+- [x] Hapus operasi berbahaya (`rm -rf *session*`)
+- [x] Config validation saat startup
+- [x] Better logging
+- [x] Pure asyncio (hapus Tornado)
+- [x] uvloop support
+- [x] Persiapan proxy per client
 
-### Phase 3 (Future)
-- [ ] Support Telegram Business features
-- [ ] Sistem plugin yang lebih modern
-- [ ] Web dashboard (opsional)
-- [ ] Better rate-limit handling
+### Phase 3 (Berikutnya - Big Update)
+- [ ] Audit & cleanup semua module
+- [ ] Proxy support penuh
+- [ ] Docker support
+- [ ] Perbaikan sudo / permission system
+- [ ] Update PyTgCalls lebih lanjut
+- [ ] Support fitur Telegram terbaru (Business, Topics, dll)
 
 ## Peringatan
 
