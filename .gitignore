@@ -91,6 +91,7 @@ env/
 env.bak/
 venv.bak/
 Goo/
+cookies.txt
 
 # Session & sensitive files
 *.session
