@@ -34,7 +34,15 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 logging.getLogger("pytgcalls").setLevel(logging.WARNING)
 logging.getLogger("ntgcalls").setLevel(logging.WARNING)
 
-aiosession = ClientSession()
+# Lazy aiohttp session (created when first needed / inside running loop)
+aiosession: ClientSession | None = None
+
+
+async def get_aiosession() -> ClientSession:
+    global aiosession
+    if aiosession is None or aiosession.closed:
+        aiosession = ClientSession()
+    return aiosession
 
 
 # -------------------- Bot Client --------------------
