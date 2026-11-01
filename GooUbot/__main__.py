@@ -3,12 +3,18 @@ import logging
 import signal
 import sys
 
-from GooUbot import bot, ubot, logger, get_aiosession
+# Set uvloop policy BEFORE any other imports that might touch the loop
+try:
+    import uvloop
+    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+except ImportError:
+    pass
+
+from GooUbot import bot, ubot, logger, get_aiosession, Ubot
 from GooUbot.core.database.userbot import get_userbots, remove_ubot
 from GooUbot.core.function.plugins import loadPlugins
 from GooUbot.core.function.expired import expiredUserbots
 
-# Optional helpers that may exist
 try:
     from GooUbot.core.helpers.tools import bash, installPeer
 except ImportError:
@@ -19,22 +25,20 @@ except ImportError:
         pass
 
 
-async def shutdown(sig=None):
+async def shutdown():
     logger.info("Shutting down gracefully...")
 
-    # Stop all userbots
     for client in list(ubot._ubot):
         try:
             await client.stop()
         except Exception as e:
-            logger.warning(f"Failed to stop userbot {getattr(client.me, 'id', '?')}: {e}")
+            logger.warning(f"Failed to stop userbot: {e}")
 
     try:
         await bot.stop()
     except Exception:
         pass
 
-    # Close aiohttp session
     try:
         session = await get_aiosession()
         if session and not session.closed:
@@ -43,11 +47,9 @@ async def shutdown(sig=None):
         pass
 
     logger.info("Shutdown complete.")
-    sys.exit(0)
 
 
 async def start_userbots():
-    """Start all saved userbots from database."""
     userbots = await get_userbots()
     logger.info(f"Found {len(userbots)} userbot(s) in database")
 
@@ -73,13 +75,8 @@ async def start_userbots():
 async def main():
     logger.info("Starting GooUserbot...")
 
-    # Start the assistant bot first
     await bot.start()
-
-    # Start all userbots
     await start_userbots()
-
-    # Load plugins & other background tasks
     await loadPlugins()
 
     try:
@@ -87,28 +84,24 @@ async def main():
     except Exception as e:
         logger.warning(f"installPeer failed: {e}")
 
-    # Start expired checker in background
     asyncio.create_task(expiredUserbots())
 
     logger.info("GooUserbot is running. Press Ctrl+C to stop.")
 
-    # Keep running
     stop_event = asyncio.Event()
+
+    def _signal_handler():
+        stop_event.set()
 
     loop = asyncio.get_running_loop()
     for sig in (signal.SIGINT, signal.SIGTERM):
         try:
-            loop.add_signal_handler(sig, lambda: asyncio.create_task(shutdown(sig)))
+            loop.add_signal_handler(sig, _signal_handler)
         except NotImplementedError:
-            # Windows
             pass
 
-    try:
-        await stop_event.wait()
-    except asyncio.CancelledError:
-        pass
-    finally:
-        await shutdown()
+    await stop_event.wait()
+    await shutdown()
 
 
 if __name__ == "__main__":

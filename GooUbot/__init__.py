@@ -3,12 +3,6 @@ import os
 import re
 import sys
 
-try:
-    import uvloop
-    uvloop.install()
-except ImportError:
-    pass
-
 from pyrogram import Client, filters
 from pyrogram.enums import ParseMode
 from pyrogram.handlers import CallbackQueryHandler, MessageHandler
@@ -34,7 +28,7 @@ logging.getLogger("pyrogram").setLevel(logging.WARNING)
 logging.getLogger("pytgcalls").setLevel(logging.WARNING)
 logging.getLogger("ntgcalls").setLevel(logging.WARNING)
 
-# Lazy aiohttp session (created when first needed / inside running loop)
+# Lazy aiohttp session
 aiosession: ClientSession | None = None
 
 
@@ -77,15 +71,11 @@ class Ubot(Client):
     _get_my_peer = {}
 
     def __init__(self, **kwargs):
-        # Support future proxy: kwargs can contain proxy={
-        #   "scheme": "socks5", "hostname": "...", "port": 1080, ...
-        # }
         super().__init__(**kwargs)
         self.call_py = PyTgCalls(self)
 
     def on_message(self, filters=None, group=-1):
         def decorator(func):
-            # Register to all currently running userbots
             for ub in list(self._ubot):
                 ub.add_handler(MessageHandler(func, filters), group)
             return func
@@ -143,7 +133,6 @@ class Ubot(Client):
         await super().start()
         await self.call_py.start()
 
-        # Load custom prefix from DB
         try:
             handler = await get_pref(self.me.id)
             self._prefix[self.me.id] = handler if handler else ["."]
