@@ -2,14 +2,6 @@ import asyncio
 import signal
 import sys
 
-# NOTE: uvloop temporarily disabled to avoid event loop conflicts
-# with current client initialization style.
-# try:
-#     import uvloop
-#     asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-# except ImportError:
-#     pass
-
 from GooUbot import bot, ubot, logger, get_aiosession, Ubot
 from GooUbot.core.database.userbot import get_userbots, remove_ubot
 from GooUbot.core.function.plugins import loadPlugins
@@ -102,7 +94,11 @@ async def main():
 
 
 if __name__ == "__main__":
+    # Do NOT use asyncio.run() — it creates a new event loop.
+    # Pyrogram clients created at import time bind to the default loop,
+    # causing "Future attached to a different loop".
+    loop = asyncio.get_event_loop()
     try:
-        asyncio.run(main())
+        loop.run_until_complete(main())
     except KeyboardInterrupt:
         pass
