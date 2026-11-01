@@ -1,21 +1,24 @@
+__MODULE__ = "invite"
+__HELP__ = """
+<blockquote><b>Invite</b></blockquote>
+
+<blockquote><b>Perintah:</b> <code>{0}invite</code> [user...]
+Undang member ke grup ini.</blockquote>
+
+<blockquote><b>Perintah:</b> <code>{0}inviteall</code> [chat] [delay detik]
+Undang member aktif dari grup lain (pakai delay biar aman).</blockquote>
+
+<blockquote><b>Perintah:</b> <code>{0}cancel</code>
+Stop proses inviteall.</blockquote>
+"""
+
 import asyncio
 
 from pyrogram.enums import UserStatus
 
 from GooUbot import *
 
-__MODULE__ = "invite"
-__HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ɪɴᴠɪᴛᴇ--</b></blockquote>
-
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ : <code>{0}invite</code> [username/id]
-🦠 ᴋᴇᴛ : ᴍᴇɴɢᴜɴᴅᴀɴɢ sᴀᴛᴜ ᴀɴɢɢᴏᴛᴀ ᴋᴇ ɢʀᴏᴜᴘ.</b></blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ : <code>{0}inviteall</code> [username_gc/id_gc] [delay]
-🦠 ᴋᴇᴛ : ᴍᴇɴɢᴜɴᴅᴀɴɢ sᴇᴍᴜᴀ ᴀɴɢɢᴏᴛᴀ ᴀᴋᴛɪꜰ ᴅᴀʀɪ ɢʀᴏᴜᴘ ʟᴀɪɴ ᴅᴇɴɢᴀɴ ᴊᴇᴅᴀ ʙᴇʀᴅᴀꜱᴀʀᴋᴀɴ delay.</b></blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ : <code>{0}cancel</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢʜᴇɴᴛɪᴋᴀɴ ᴘʀᴏꜱᴇꜱ <code>inviteall</code> ʏᴀɴɢ sᴇᴅᴀɴɢ ʙᴇʀᴊᴀʟᴀɴ.</b></blockquote>
-"""
-
+invite_id = []
 
 
 @PY.UBOT("invite")
@@ -24,26 +27,20 @@ __HELP__ = """
 async def _(client, message):
     prs = await EMO.PROSES(client)
     brhsl = await EMO.BERHASIL(client)
-    ktrng = await EMO.BL_KETERANGAN(client)
-    mg = await message.reply(f"{prs}menambahkan pengguna!")
+    ggl = await EMO.GAGAL(client)
+
     if len(message.command) < 2:
-        return await mg.delete()
-    user_s_to_add = message.text.split(" ", 1)[1]
-    if not user_s_to_add:
-        await mg.edit(
-            f"{ktrng}beri saya pengguna untuk ditambahkan!\nperiksa menu bantuan untuk info lebih lanjut!"
-        )
-        return
-    user_list = user_s_to_add.split(" ")
+        return await message.reply(f"{ggl}<code>{message.command[0]} [user...]</code>")
+
+    status = await message.reply(f"{prs}Menambahkan...")
+    users = message.text.split(None, 1)[1].split()
+
     try:
-        await client.add_chat_members(message.chat.id, user_list, forward_limit=100)
+        await client.add_chat_members(message.chat.id, users, forward_limit=50)
+        await status.edit(f"{brhsl}Berhasil tambah {len(users)} user.")
     except Exception as e:
-        return await mg.edit(f"{e}")
-    await mg.edit(f"{brhsl}berhasil ditambahkan {len(user_list)} ke grup ini")
+        await status.edit(f"{ggl}<code>{e}</code>")
 
-
-
-invite_id = []
 
 @PY.UBOT("inviteall")
 @PY.TOP_CMD
@@ -52,55 +49,56 @@ async def _(client, message):
     prs = await EMO.PROSES(client)
     brhsl = await EMO.BERHASIL(client)
     ggl = await EMO.GAGAL(client)
-    ktrng = await EMO.BL_KETERANGAN(client)
 
-    Tm = await message.reply(f"{prs}processing . . .")
     if len(message.command) < 3:
-        await message.delete()
-        return await Tm.delete()
+        return await message.reply(
+            f"{ggl}<code>{message.command[0]} [chat_id/username] [delay]</code>"
+        )
+
+    status = await message.reply(f"{prs}Processing...")
 
     try:
         chat = await client.get_chat(message.command[1])
-    except Exception as error:
-        return await Tm.edit(f"{ggl} {error}")
+        delay = max(int(message.command[2]), 3)
+    except Exception as e:
+        return await status.edit(f"{ggl}<code>{e}</code>")
 
     if message.chat.id in invite_id:
-        return await Tm.edit_text(
-            f"{ktrng}Sedang menginvite member.\nGunakan perintah <code>cancel</code> untuk membatalkan."
+        return await status.edit(
+            f"{ggl}Inviteall sedang jalan. Pakai <code>.cancel</code>"
         )
 
-    done, failed = 0, 0
     invite_id.append(message.chat.id)
-
-    await Tm.edit_text(f"{prs}Mengundang anggota dari {chat.title}...")
+    done, failed = 0, 0
+    await status.edit(f"{prs}Invite dari <b>{chat.title}</b> (delay {delay}s)...")
 
     try:
         async for member in client.get_chat_members(chat.id):
-            if member.user.status in [
+            if message.chat.id not in invite_id:
+                break
+            if not member.user or member.user.is_bot or member.user.is_deleted:
+                continue
+            if member.user.status not in (
                 UserStatus.ONLINE,
                 UserStatus.OFFLINE,
                 UserStatus.RECENTLY,
                 UserStatus.LAST_WEEK,
-            ]:
-                try:
-                    await client.add_chat_members(message.chat.id, member.user.id)
-                    done += 1
-                except Exception:
-                    failed += 1
-                await asyncio.sleep(int(message.command[2]))
+            ):
+                continue
+            try:
+                await client.add_chat_members(message.chat.id, member.user.id)
+                done += 1
+            except Exception:
+                failed += 1
+            await asyncio.sleep(delay)
     except Exception as e:
-        await Tm.edit(f"{ggl} Error: {e}")
-        invite_id.remove(message.chat.id)
-        return
+        await status.edit(f"{ggl}<code>{e}</code>")
+    finally:
+        if message.chat.id in invite_id:
+            invite_id.remove(message.chat.id)
 
-    invite_id.remove(message.chat.id)
-    await Tm.delete()
-
-    await message.reply(
-        f"""
-{brhsl} {done} anggota berhasil diundang.
-{ggl} {failed} anggota gagal diundang.
-"""
+    await status.edit(
+        f"{brhsl}Selesai\nBerhasil: <code>{done}</code>\nGagal: <code>{failed}</code>"
     )
 
 
@@ -108,10 +106,14 @@ async def _(client, message):
 @PY.TOP_CMD
 @PY.GROUP
 async def _(client, message):
+    ggl = await EMO.GAGAL(client)
+    brhsl = await EMO.BERHASIL(client)
+
     if message.chat.id not in invite_id:
-        return await message.reply_text("🚫 Tidak ada proses <code>inviteall</code> yang sedang berjalan.")
+        return await message.reply(f"{ggl}Tidak ada inviteall yang berjalan.")
+
     try:
         invite_id.remove(message.chat.id)
-        await message.reply_text("✅ Perintah <code>inviteall</code> berhasil dibatalkan.")
+        await message.reply(f"{brhsl}Inviteall dibatalkan.")
     except Exception as e:
-        await message.reply_text(f"⚠️ Gagal membatalkan: {e}")
+        await message.reply(f"{ggl}<code>{e}</code>")
