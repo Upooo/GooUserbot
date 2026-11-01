@@ -3,7 +3,7 @@ import logging
 import signal
 import sys
 
-from GooUbot import bot, ubot, logger
+from GooUbot import bot, ubot, logger, get_aiosession
 from GooUbot.core.database.userbot import get_userbots, remove_ubot
 from GooUbot.core.function.plugins import loadPlugins
 from GooUbot.core.function.expired import expiredUserbots
@@ -36,8 +36,9 @@ async def shutdown(sig=None):
 
     # Close aiohttp session
     try:
-        from GooUbot import aiosession
-        await aiosession.close()
+        session = await get_aiosession()
+        if session and not session.closed:
+            await session.close()
     except Exception:
         pass
 
