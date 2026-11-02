@@ -1,29 +1,27 @@
-from GooUbot import *
-
-from pyrogram.enums import ParseMode
 __MODULE__ = "custom"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴄᴜꜱᴛᴏᴍ--</b></blockquote>
+<blockquote><b>Custom Text</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}lihatemoji</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴᴀᴍᴘɪʟᴋᴀɴ ᴇᴍᴏᴊɪ ʏᴀɴɢ ᴅɪɢᴜɴᴀᴋᴀɴ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}text</code>
-🦠 ᴋᴇᴛ : ᴍᴇʀᴜʙᴀʜ ᴛᴇxᴛ ᴘᴀᴅᴀ ᴛᴀᴍᴘɪʟᴀɴ ᴛᴇʀᴛᴇɴᴛᴜ.</blockquote>
+<blockquote><b>Perintah:</b> <code>{0}text</code> [pong/owner/ubot] [value|none]
+Ubah label text tampilan.
+Contoh: <code>{0}text pong none</code></blockquote>
 
-<blockquote><b>📦 ᴏᴘꜱɪ ǫᴜᴇʀʏ :</b>
-<code>{0}pong</code> | default : ± pong  
-<code>{0}owner</code> | default : ± owner  
-<code>{0}ubot</code> | default : ± ubot</blockquote>
-<blockquote><b>📌 ᴄᴏɴᴛᴏʜ :</b>
-<code>{0}text pong none</code> → ᴍᴇɴʏᴇᴛɪɴɢ ᴘᴏɴɢ ᴋᴇ ᴅᴇꜰᴀᴜʟᴛ</blockquote>
+<blockquote><b>Perintah:</b> <code>{0}lihatemoji</code> (reply)
+Tampilkan format custom emoji dari pesan.</blockquote>
 """
+
+from pyrogram.enums import ParseMode
+
+from GooUbot import *
+
 
 def extract_emojis_from_entities(message):
     emojis = []
-    for entity in message.entities:
+    for entity in message.entities or []:
         emoji = message.text[entity.offset : entity.offset + entity.length]
         emojis.append(emoji)
     return emojis
+
 
 @PY.UBOT("text")
 @PY.TOP_CMD
@@ -31,49 +29,54 @@ async def _(client, message):
     prs = await EMO.PROSES(client)
     brhsl = await EMO.BERHASIL(client)
     ggl = await EMO.GAGAL(client)
-    try:
-        msg = await message.reply(f"{prs}memproses...", quote=True)
 
-        if len(message.command) < 3:
-            return await msg.edit(f"{ggl}tolong masukkan query dan valuenya")
+    status = await message.reply(f"{prs}Processing...", quote=True)
 
-        query_mapping = {
-            "pong": "STRING_PONG",
-            "owner": "STRING_OWNER",
-            "ubot": "STRING_UBOT",
-            "devs": "STRING_DEVS",
-        }
+    if len(message.command) < 3:
+        return await status.edit(
+            f"{ggl}<code>{message.command[0]} [pong/owner/ubot] [value]</code>"
+        )
 
-        command = message.command[0]
-        mapping = message.command[1]
-        value = " ".join(message.command[2:])
+    query_mapping = {
+        "pong": "STRING_PONG",
+        "owner": "STRING_OWNER",
+        "ubot": "STRING_UBOT",
+        "devs": "STRING_DEVS",
+    }
 
-        if mapping.lower() in query_mapping:
-            if value.lower() == "none":
-                value = False
-            query_var = query_mapping[mapping.lower()]
-            await set_vars(client.me.id, query_var, value)
-            await msg.edit(
-                f"{brhsl}text berhasil di setting ke: {value}"
-            )
-        else:
-            await msg.edit(f"{ggl}mapping tidak ditemukan")
+    mapping = message.command[1].lower()
+    value = " ".join(message.command[2:])
 
-    except Exception as error:
-        await msg.edit(str(error))
+    if mapping not in query_mapping:
+        return await status.edit(f"{ggl}Query tidak dikenal.")
+
+    if value.lower() == "none":
+        value = False
+
+    await set_vars(client.me.id, query_mapping[mapping], value)
+    await status.edit(f"{brhsl}Text <b>{mapping}</b> di-set ke: <code>{value}</code>")
+
 
 @PY.UBOT("lihatemoji")
+@PY.TOP_CMD
 async def extract_emoji(client, message):
+    ggl = await EMO.GAGAL(client)
+
+    if not message.reply_to_message or not message.reply_to_message.entities:
+        return await message.reply(f"{ggl}Reply ke pesan yang ada custom emoji.")
+
     try:
-        if not message.reply_to_message:
-            return await message.reply_text("Please reply to a message to extract custom emoji IDs.")
-        
-        custom_emoji_ids = [entity.custom_emoji_id for entity in message.reply_to_message.entities]
+        custom_emoji_ids = [
+            getattr(entity, "custom_emoji_id", None)
+            for entity in message.reply_to_message.entities
+        ]
         emojis = extract_emojis_from_entities(message.reply_to_message)
-        
-        formatted_emojis = "".join([f"<emoji id={emoji_id}>{emoji}</emoji>" if emoji_id is not None else emoji for emoji_id, emoji in zip(custom_emoji_ids, emojis)])
-        
-        await message.reply_text(f"{formatted_emojis}", parse_mode=ParseMode.DISABLED)
-    
+
+        formatted = "".join(
+            f"<emoji id={emoji_id}>{emoji}</emoji>" if emoji_id else emoji
+            for emoji_id, emoji in zip(custom_emoji_ids, emojis)
+        )
+
+        await message.reply(formatted, parse_mode=ParseMode.DISABLED)
     except Exception as e:
-        await message.reply_text(str(e))
+        await message.reply(f"{ggl}<code>{e}</code>")

@@ -1,45 +1,59 @@
-import asyncio
-from pyrogram import Client
-from pyrogram.types import Message
-import os
-from GooUbot import *
-
 __MODULE__ = "download"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴅᴏᴡɴʟᴏᴀᴅ--</b></blockquote>
+<blockquote><b>Download Sosmed</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}dl [link]</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴᴅᴏᴡɴʟᴏᴀᴅ ᴠɪᴅᴇᴏ ꜱᴏꜱᴍᴇᴅ ᴠɪᴀ ʟɪɴᴋ.</b></blockquote>"""
+<blockquote><b>Perintah:</b> <code>{0}dl</code> [link]
+Download video dari link (TikTok, IG, YT, dll) via yt-dlp.</blockquote>
+"""
+
+import asyncio
+import os
+import uuid
+
+from GooUbot import *
+
 
 @PY.UBOT("dl")
 @PY.TOP_CMD
-async def download_video(client: Client, message: Message):
-    if not (args := message.text.split(maxsplit=1)[1:]):
-        return await message.reply("❌ Kirimkan link video!\n\nContoh: <code>.dl https://tiktok.com/xxx</code>")
-    
-    url = args[0]
-    await message.reply("🔄 Mendownload...")
+async def download_video(client, message):
+    ggl = await EMO.GAGAL(client)
+    brhsl = await EMO.BERHASIL(client)
+    prs = await EMO.PROSES(client)
 
-    filename = "video.mp4"
-    try:
-        # Unduh via yt-dlp
-        process = await asyncio.create_subprocess_exec(
-            "yt-dlp", "-o", filename, url,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+    if len(message.command) < 2:
+        return await message.reply(
+            f"{ggl}<code>{message.command[0]} [link]</code>"
         )
-        stdout, stderr = await process.communicate()
+
+    url = message.command[1]
+    status = await message.reply(f"{prs}Downloading...")
+    filename = f"dl_{uuid.uuid4().hex[:8]}.mp4"
+
+    try:
+        process = await asyncio.create_subprocess_exec(
+            "yt-dlp",
+            "-o",
+            filename,
+            "--no-playlist",
+            "--quiet",
+            url,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        await process.communicate()
 
         if not os.path.exists(filename):
-            return await message.reply("❌ Gagal mengunduh video.")
+            return await status.edit(f"{ggl}Gagal download.")
 
-        # Kirim ke Telegram
         await client.send_video(
             chat_id=message.chat.id,
             video=filename,
-            caption="✅ Video berhasil diunduh!",
-            reply_to_message_id=message.id
+            caption=f"{brhsl}Downloaded",
+            reply_to_message_id=message.id,
         )
-        os.remove(filename)
+        await status.delete()
     except Exception as e:
-        await message.reply(f"❌ Error: {e}")
+        await status.edit(f"{ggl}<code>{e}</code>")
+    finally:
+        if os.path.exists(filename):
+            os.remove(filename)

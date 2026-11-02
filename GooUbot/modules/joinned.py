@@ -1,30 +1,19 @@
-from pyrogram import *
-from pyrogram import errors
-from pyrogram import enums
-from pyrogram.enums import ChatType, ChatMemberStatus
-from pyrogram.errors.exceptions.bad_request_400 import UserNotParticipant
-from pyrogram.errors.exceptions.not_acceptable_406 import ChannelPrivate
-from GooUbot import *
-
 __MODULE__ = "joinleave"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴊᴏɪɴ/ʟᴇᴀᴠᴇ--</b></blockquote>
+<blockquote><b>Join / Leave</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}kickme</code>
-🦠 ᴋᴇᴛ : ᴋᴇʟᴜᴀʀ ᴅᴀʀɪ ɢʀᴏᴜᴘ ᴛᴇʟᴇɢʀᴀᴍ.</blockquote>
-
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}join</code>
-🦠 ᴋᴇᴛ : ᴊᴏɪɴ ᴋᴇ ɢʀᴏᴜᴘ ᴍᴇʟᴀʟᴜɪ ᴛᴀᴜᴛᴀɴ ᴀᴛᴀᴜ ᴜsᴇʀɴᴀᴍᴇ.</blockquote>
-
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}leaveallgc</code>
-🦠 ᴋᴇᴛ : ᴋᴇʟᴜᴀʀ ᴅᴀʀɪ sᴇᴍᴜᴀ ɢʀᴏᴜᴘ ᴛᴇʟᴇɢʀᴀᴍ ᴋᴇᴄᴜᴀʟɪ ᴀᴅᴍɪɴ/ᴏᴡɴᴇʀ.</blockquote>
-
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}leavemute</code>
-🦠 ᴋᴇᴛ : ᴋᴇʟᴜᴀʀ ᴅᴀʀɪ ɢʀᴜᴘ ʏᴀɴɢ ᴍᴇᴍʙᴀᴛᴀsɪ ᴀᴋᴜɴ ᴀɴᴅᴀ.</blockquote>
-
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}leaveallch</code>
-🦠 ᴋᴇᴛ : ᴋᴇʟᴜᴀʀ ᴅᴀʀɪ sᴇᴍᴜᴀ ᴄʜᴀɴɴᴇʟ ᴋᴇᴄᴜᴀʟɪ ᴀᴅᴍɪɴ/ᴏᴡɴᴇʀ.</blockquote>
+<blockquote><b>Perintah:</b>
+<code>{0}join</code> [link/username] — join chat
+<code>{0}kickme</code> — leave chat ini
+<code>{0}leaveallgc</code> — leave semua grup (kecuali admin/owner)
+<code>{0}leaveallch</code> — leave semua channel (kecuali admin/owner)
+<code>{0}leavemute</code> — leave grup yang restrict akun kamu</blockquote>
 """
+
+from pyrogram.enums import ChatMemberStatus, ChatType
+
+from GooUbot import *
+from GooUbot.config import BLACKLIST_CHAT
 
 
 @PY.UBOT("kickme")
@@ -32,103 +21,121 @@ __HELP__ = """
 @PY.TOP_CMD
 @PY.GROUP
 async def _(client, message):
-    sks = await EMO.BERHASIL(client)
+    brhsl = await EMO.BERHASIL(client)
     prs = await EMO.PROSES(client)
     ggl = await EMO.GAGAL(client)
-    Man = message.command[1] if len(message.command) > 1 else message.chat.id
-    xxnx = await message.reply(f"{prs}memproꜱeꜱ...")
-    if message.chat.id in BLACKLIST_CHAT:
-        return await xxnx.edit(f"{ggl}perintah ini dilarang digunakan di group ini")
-    try:
-        await xxnx.edit_text(f"{client.me.first_name} telah meninggalkan grup, dadahh!!{sks}")
-        await client.leave_chat(Man)
-    except Exception as ex:
-        await xxnx.edit_text(f"{ggl}ERROR: \n\n{str(ex)}")
 
+    target = message.command[1] if len(message.command) > 1 else message.chat.id
+    status = await message.reply(f"{prs}Leaving...")
+
+    if message.chat.id in (BLACKLIST_CHAT or []):
+        return await status.edit(f"{ggl}Dilarang di chat ini.")
+
+    try:
+        await status.edit(f"{brhsl}Leaving chat...")
+        await client.leave_chat(target)
+    except Exception as e:
+        await status.edit(f"{ggl}<code>{e}</code>")
 
 
 @PY.UBOT("join")
 @PY.IDOL("cjoin")
 @PY.TOP_CMD
 async def _(client, message):
-    sks = await EMO.BERHASIL(client)
+    brhsl = await EMO.BERHASIL(client)
     prs = await EMO.PROSES(client)
     ggl = await EMO.GAGAL(client)
-    Man = message.command[1] if len(message.command) > 1 else message.chat.id
-    xxnx = await message.reply(f"{prs}memproꜱeꜱ...")
+
+    if len(message.command) < 2:
+        return await message.reply(f"{ggl}<code>{message.command[0]} [link/username]</code>")
+
+    target = message.command[1]
+    status = await message.reply(f"{prs}Joining...")
+
     try:
-        await xxnx.edit(f"{sks}berhaꜱil bergabung ke chat id: {Man}")
-        await client.join_chat(Man)
-    except Exception as ex:
-        await xxnx.edit(f"{ggl}ERROR: \n\n{str(ex)}")
+        await client.join_chat(target)
+        await status.edit(f"{brhsl}Joined: <code>{target}</code>")
+    except Exception as e:
+        await status.edit(f"{ggl}<code>{e}</code>")
 
 
 @PY.UBOT("leaveallgc")
 @PY.TOP_CMD
 async def _(client, message):
-    sks = await EMO.BERHASIL(client)
+    brhsl = await EMO.BERHASIL(client)
     prs = await EMO.PROSES(client)
     ggl = await EMO.GAGAL(client)
-    Man = await message.reply(f"{prs}global leave dari obrolan group...")
-    er = 0
-    done = 0
+
+    status = await message.reply(f"{prs}Leaving all groups...")
+    done = failed = 0
+
     async for dialog in client.get_dialogs():
-        if dialog.chat.type in (ChatType.GROUP, ChatType.SUPERGROUP):
-            chat = dialog.chat.id
-            try:
-                member = await client.get_chat_member(chat, "me")
-                if member.status not in (ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER):
-                    done += 1
-                    await client.leave_chat(chat)
-            except BaseException:
-                er += 1
-    await Man.edit(
-        f"{sks}berhaꜱil keluar dari {done} group\n{ggl}gagal keluar dari {er} group"
+        if dialog.chat.type not in (ChatType.GROUP, ChatType.SUPERGROUP):
+            continue
+        try:
+            member = await client.get_chat_member(dialog.chat.id, "me")
+            if member.status not in (
+                ChatMemberStatus.ADMINISTRATOR,
+                ChatMemberStatus.OWNER,
+            ):
+                await client.leave_chat(dialog.chat.id)
+                done += 1
+        except Exception:
+            failed += 1
+
+    await status.edit(
+        f"{brhsl}Leave grup: <code>{done}</code>\n{ggl}Gagal: <code>{failed}</code>"
     )
 
 
 @PY.UBOT("leaveallch")
 @PY.TOP_CMD
 async def _(client, message):
-    sks = await EMO.BERHASIL(client)
+    brhsl = await EMO.BERHASIL(client)
     prs = await EMO.PROSES(client)
     ggl = await EMO.GAGAL(client)
-    Man = await message.reply(f"{prs}global leave dari channel...")
-    er = 0
-    done = 0
+
+    status = await message.reply(f"{prs}Leaving all channels...")
+    done = failed = 0
+
     async for dialog in client.get_dialogs():
-        if dialog.chat.type == ChatType.CHANNEL:
-            chat = dialog.chat.id
-            try:
-                member = await client.get_chat_member(chat, "me")
-                if member.status not in (ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.OWNER):
-                    done += 1
-                    await client.leave_chat(chat)
-            except BaseException:
-                er += 1
-    await Man.edit(
-        f"{sks}berhaꜱil keluar dari {done} channel\n{ggl}gagal keluar dari {er} channel"
+        if dialog.chat.type != ChatType.CHANNEL:
+            continue
+        try:
+            member = await client.get_chat_member(dialog.chat.id, "me")
+            if member.status not in (
+                ChatMemberStatus.ADMINISTRATOR,
+                ChatMemberStatus.OWNER,
+            ):
+                await client.leave_chat(dialog.chat.id)
+                done += 1
+        except Exception:
+            failed += 1
+
+    await status.edit(
+        f"{brhsl}Leave channel: <code>{done}</code>\n{ggl}Gagal: <code>{failed}</code>"
     )
+
 
 @PY.UBOT("lvmute|leavemute")
 @PY.IDOL("cleavemute")
 @PY.TOP_CMD
 async def _(client, message):
-    sks = await EMO.BERHASIL(client)
+    brhsl = await EMO.BERHASIL(client)
     prs = await EMO.PROSES(client)
-    ggl = await EMO.GAGAL(client)
+
+    status = await message.reply(f"{prs}Checking muted groups...")
     done = 0
-    Haku = await message.reply_text(f"{prs}proccesing...")
+
     async for dialog in client.get_dialogs():
-        if dialog.chat.type in (ChatType.SUPERGROUP, ChatType.GROUP):
-            chat_id = dialog.chat.id
-            try:
-                member = await client.get_chat_member(chat_id, "me")
-                if member.status == ChatMemberStatus.RESTRICTED:
-                    await client.leave_chat(chat_id)
-                    done += 1
-            except Exception:
-                pass
-    await Haku.edit(f"""
-{sks}berhasil keluar dari : {done} grup yang telah membatasi kamu
-""")
+        if dialog.chat.type not in (ChatType.SUPERGROUP, ChatType.GROUP):
+            continue
+        try:
+            member = await client.get_chat_member(dialog.chat.id, "me")
+            if member.status == ChatMemberStatus.RESTRICTED:
+                await client.leave_chat(dialog.chat.id)
+                done += 1
+        except Exception:
+            pass
+
+    await status.edit(f"{brhsl}Leave dari <code>{done}</code> grup yang restrict.")
