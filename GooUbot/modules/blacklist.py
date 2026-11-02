@@ -1,47 +1,39 @@
 __MODULE__ = "bl"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ʙʟᴀᴄᴋʟɪsᴛ--</b></blockquote>
+<blockquote><b>Blacklist Broadcast</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}addbl</code>
-🦠 ᴋᴇᴛ : ᴍᴀꜱᴜᴋᴀɴ ɢʀᴏᴜᴘ ᴋᴇ ᴅᴀꜰᴛᴀʀ ʙʟᴀᴄᴋʟɪꜱᴛ ʙʀᴏᴀᴅᴄᴀꜱᴛ.</b></blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}unbl</code>
-🦠 ᴋᴇᴛ : ʜᴀᴘᴜꜱ ɢʀᴏᴜᴘ ᴋᴇ ᴅᴀꜰᴛᴀʀ ʙʟᴀᴄᴋʟɪꜱᴛ ʙʀᴏᴀᴅᴄᴀꜱᴛ.</b></blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}listbl</code>
-🦠 ᴋᴇᴛ : ʟɪʜᴀᴛ ᴅᴀꜰᴛᴀʀ ɢʀᴏᴜᴘ ʙʟᴀᴄᴋʟɪꜱᴛ ʙʀᴏᴀᴅᴄᴀꜱᴛ.</b></blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}rallbl</code>
-🦠 ᴋᴇᴛ : ʜᴀᴘᴜꜱ ꜱᴇᴍᴜᴀ ɢʀᴏᴜᴘ ᴋᴇ ᴅᴀꜰᴛᴀʀ ʙʟᴀᴄᴋʟɪꜱᴛ ʙʀᴏᴀᴅᴄᴀꜱᴛ.</b></blockquote>
+<blockquote><b>Perintah:</b>
+<code>{0}addbl</code> — tambah chat ini ke blacklist BC
+<code>{0}unbl</code> — hapus dari blacklist
+<code>{0}listbl</code> — lihat daftar
+<code>{0}rallbl</code> — hapus semua blacklist</blockquote>
 """
 
 from GooUbot import *
+
 
 @PY.UBOT("addbl")
 @PY.IDOL("caddbl")
 @PY.TOP_CMD
 async def _(client, message):
     prs = await EMO.PROSES(client)
-    grp = await EMO.BL_GROUP(client)
-    ktrn = await EMO.BL_KETERANGAN(client)
-    _msg = f"<blockquote><b>{prs} ᴛᴜɴɢɢᴜ ʙᴇɴᴛᴀʀ...</b></blockquote>"
+    brhsl = await EMO.BERHASIL(client)
+    ggl = await EMO.GAGAL(client)
 
-    msg = await message.reply(_msg)
+    status = await message.reply(f"{prs}Processing...")
     try:
         chat_id = message.chat.id
-        blacklist = await get_list_from_vars(client.me.id, "BL_ID")
+        blacklist = await get_list_from_vars(client.me.id, "BL_ID") or []
 
         if chat_id in blacklist:
-            txt = f"""
-<blockquote><b>⌭ {grp} ɢʀᴏᴜᴘ: {message.chat.title}</blockquote></b>
-<blockquote><b>⌭ {ktrn} ᴋᴇᴛ: sᴜᴅᴀʜ ᴀᴅᴀ ᴅᴀʟᴀᴍ ʟɪsᴛ</blockquote></b>
-"""
-        else:
-            await add_to_vars(client.me.id, "BL_ID", chat_id)
-            txt = f"""
-<blockquote><b>⌭ {grp} ɢʀᴏᴜᴘ: {message.chat.title}</blockquote></b>\n<blockquote><b>⌭ {ktrn} ᴋᴇᴛ: ʙᴇʀʜᴀsɪʟ ᴅɪ ᴛᴀᴍʙᴀʜᴋᴀɴ ᴋᴇ ᴅᴀʟᴀᴍ ʟɪsᴛ ᴊᴇᴍʙᴏᴛ</blockquote></b>
-"""
+            return await status.edit(
+                f"{ggl}<b>{message.chat.title}</b> sudah di blacklist."
+            )
 
-        return await msg.edit(txt)
-    except Exception as error:
-        return await msg.edit(str(error))
+        await add_to_vars(client.me.id, "BL_ID", chat_id)
+        await status.edit(f"{brhsl}<b>{message.chat.title}</b> ditambah ke blacklist.")
+    except Exception as e:
+        await status.edit(f"{ggl}<code>{e}</code>")
 
 
 @PY.UBOT("unbl")
@@ -49,30 +41,22 @@ async def _(client, message):
 @PY.TOP_CMD
 async def _(client, message):
     prs = await EMO.PROSES(client)
-    grp = await EMO.BL_GROUP(client)
-    ktrn = await EMO.BL_KETERANGAN(client)
-    _msg = f"{prs}proceꜱꜱing..."
+    brhsl = await EMO.BERHASIL(client)
+    ggl = await EMO.GAGAL(client)
 
-    msg = await message.reply(_msg)
+    status = await message.reply(f"{prs}Processing...")
     try:
-        chat_id = get_arg(message) or message.chat.id
-        blacklist = await get_list_from_vars(client.me.id, "BL_ID")
+        arg = get_arg(message)
+        chat_id = int(arg) if arg and arg.lstrip("-").isdigit() else message.chat.id
+        blacklist = await get_list_from_vars(client.me.id, "BL_ID") or []
 
         if chat_id not in blacklist:
-            response = f"""
-<blockquote><b>⌭ {grp} ɢʀᴏᴜᴘ: {message.chat.title}</blockquote></b>
-<blockquote><b>⌭ {ktrn} ᴋᴇᴛ: ᴛɪᴅᴀᴋ ᴀᴅᴀ ᴅᴀʟᴀᴍ ʟɪsᴛ </b></blockquote>
-"""
-        else:
-            await remove_from_vars(client.me.id, "BL_ID", chat_id)
-            response = f"""
-<blockquote><b>⌭ {grp} ɢʀᴏᴜᴘ: {message.chat.title}</blockquote ></b>
-<blockquote><b>⌭ {ktrn} ᴋᴇᴛ: ʙᴇʀʜᴀsɪʟ ᴅɪ ʜᴀᴘᴜs ᴋᴇ ᴅᴀʟᴀᴍ ʟɪsᴛ </blockquote></b>
-"""
+            return await status.edit(f"{ggl}Chat tidak ada di blacklist.")
 
-        return await msg.edit(response)
-    except Exception as error:
-        return await msg.edit(str(error))
+        await remove_from_vars(client.me.id, "BL_ID", chat_id)
+        await status.edit(f"{brhsl}Dihapus dari blacklist.")
+    except Exception as e:
+        await status.edit(f"{ggl}<code>{e}</code>")
 
 
 @PY.UBOT("listbl")
@@ -80,41 +64,44 @@ async def _(client, message):
 async def _(client, message):
     prs = await EMO.PROSES(client)
     brhsl = await EMO.BERHASIL(client)
-    ktrng = await EMO.BL_KETERANGAN(client)
-    _msg = f"{prs}proceꜱꜱing..."
-    mzg = await message.reply(_msg)
+    ggl = await EMO.GAGAL(client)
 
-    blacklist = await get_list_from_vars(client.me.id, "BL_ID")
-    total_blacklist = len(blacklist)
+    status = await message.reply(f"{prs}Processing...")
+    blacklist = await get_list_from_vars(client.me.id, "BL_ID") or []
 
-    list = f"{brhsl} ᴅᴀꜰᴛᴀʀ ʙʟᴀᴄᴋʟɪꜱᴛ\n"
+    if not blacklist:
+        return await status.edit(f"{ggl}Blacklist kosong.")
 
+    lines = []
     for chat_id in blacklist:
         try:
             chat = await client.get_chat(chat_id)
-            list += f" ├ {chat.title} | {chat.id}\n"
-        except:
-            list += f" ├ {chat_id}\n"
+            lines.append(f"• {chat.title} — <code>{chat.id}</code>")
+        except Exception:
+            lines.append(f"• <code>{chat_id}</code>")
 
-    list += f"{ktrng} ᴛᴏᴛᴀʟ ʙʟᴀᴄᴋʟɪꜱᴛ : {total_blacklist}"
-    return await mzg.edit(list)
+    text = (
+        f"<blockquote><b>Blacklist Broadcast</b></blockquote>\n"
+        + "\n".join(lines)
+        + f"\n\nTotal: <code>{len(blacklist)}</code>"
+    )
+    await status.edit(text)
 
 
 @PY.UBOT("rallbl")
 @PY.TOP_CMD
 async def _(client, message):
     prs = await EMO.PROSES(client)
-    ggl = await EMO.GAGAL(client)
     brhsl = await EMO.BERHASIL(client)
-    _msg = f"{prs} ᴘʀᴏᴄᴇꜱꜱɪɴɢ..."
+    ggl = await EMO.GAGAL(client)
 
-    msg = await message.reply(_msg)
-    blacklists = await get_list_from_vars(client.me.id, "BL_ID")
+    status = await message.reply(f"{prs}Processing...")
+    blacklists = await get_list_from_vars(client.me.id, "BL_ID") or []
 
     if not blacklists:
-        return await msg.edit(f"{ggl} ʙʟᴀᴄᴋʟɪꜱᴛ ʙʀᴏᴀᴅᴄᴀꜱᴛ ᴀɴᴅᴀ ᴋᴏꜱᴏɴɢ.")
+        return await status.edit(f"{ggl}Blacklist sudah kosong.")
 
-    for chat_id in blacklists:
+    for chat_id in list(blacklists):
         await remove_from_vars(client.me.id, "BL_ID", chat_id)
 
-    await msg.edit(f"{brhsl} ꜱᴇᴍᴜᴀ ʙʟᴀᴄᴋʟɪꜱᴛ ʙʀᴏᴀᴅᴄᴀꜱᴛ ʙᴇʀʜᴀꜱɪʟ ᴅɪ ʜᴀᴘᴜꜱ.")
+    await status.edit(f"{brhsl}Semua blacklist dihapus.")
