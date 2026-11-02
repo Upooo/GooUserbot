@@ -1,44 +1,47 @@
 __MODULE__ = "adzan"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴀᴅᴢᴀɴ--</b></blockquote>
+<blockquote><b>Adzan</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ : <code>{0}adzan [nama kota]</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢᴇᴛᴀʜᴜɪ ᴡᴀᴋᴛᴜ ᴀᴅᴢᴀɴ ᴘᴀᴅᴀ ꜱᴜᴀᴛᴜ ᴡɪʟᴀʏᴀʜ.</b></blockquote>
+<blockquote><b>Perintah:</b> <code>{0}adzan</code> [nama kota]
+Jadwal shalat wilayah.</blockquote>
 """
 
-import json
 import requests
-from pyrogram import *
-from pyrogram.types import *
+
 from GooUbot import *
 
-@PY.UBOT("adzan")
-async def adzan(client, message):
-    lok = message.text.split(" ", 1)
-    if len(lok) == 1:
-        await message.reply_text("<blockquote><b>ᴍᴏʜᴏɴ ꜱᴇʀᴛᴀᴋᴀɴ ɴᴀᴍᴀ ᴋᴏᴛᴀ.</b></blockquote>")
-        return
-    lok = lok[1]
-    url = f"http://muslimsalat.com/{lok}.json?key=bd099c5825cbedb9aa934e255a81a5fc"
-    try:
-        req = requests.get(url)
-        req.raise_for_status()
-    except requests.exceptions.HTTPError as e:
-        await message.reply_text(f"<blockquote><b>ᴇʀʀᴏʀ :</b>\n{e}</blockquote>")
-        return
-    result = req.json()
-    txt = f"""
-<blockquote><b>ᴊᴀᴅᴡᴀʟ ꜱʜᴀʟᴀᴛ ᴡɪʟᴀʏᴀʜ <u>{lok}</u></b></blockquote>
-<blockquote><b>ᴛᴀɴɢɢᴀʟ <code>{result['items'][0]['date_for']}</code>
-ᴋᴏᴛᴀ {result['query']} | {result['country']}</b></blockquote>
 
-<blockquote><b>
-ᴛᴇʀʙɪᴛ : <code>{result['items'][0]['shurooq']}</code>
-ꜱᴜʙᴜʜ : <code>{result['items'][0]['fajr']}</code>
-ᴢᴜʜᴜʀ : <code>{result['items'][0]['dhuhr']}</code>
-ᴀꜱʜᴀʀ : <code>{result['items'][0]['asr']}</code>
-ᴍᴀɢʜʀɪʙ : <code>{result['items'][0]['maghrib']}</code>
-ɪꜱʏᴀ : <code>{result['items'][0]['isha']}</code>
-</b></blockquote>
-"""
-    await message.reply_text(txt)
+@PY.UBOT("adzan")
+@PY.TOP_CMD
+async def adzan(client, message):
+    ggl = await EMO.GAGAL(client)
+    prs = await EMO.PROSES(client)
+
+    if len(message.command) < 2:
+        return await message.reply(f"{ggl}<code>{message.command[0]} [nama kota]</code>")
+
+    city = message.text.split(None, 1)[1]
+    status = await message.reply(f"{prs}Mengambil jadwal...")
+
+    url = f"http://muslimsalat.com/{city}.json?key=bd099c5825cbedb9aa934e255a81a5fc"
+    try:
+        req = requests.get(url, timeout=15)
+        req.raise_for_status()
+        result = req.json()
+        item = result["items"][0]
+
+        text = f"""
+<blockquote><b>Jadwal Shalat • {city}</b>
+Tanggal: <code>{item['date_for']}</code>
+Wilayah: {result.get('query', city)} | {result.get('country', '-')}
+
+Terbit: <code>{item['shurooq']}</code>
+Subuh: <code>{item['fajr']}</code>
+Zuhur: <code>{item['dhuhr']}</code>
+Ashar: <code>{item['asr']}</code>
+Maghrib: <code>{item['maghrib']}</code>
+Isya: <code>{item['isha']}</code></blockquote>
+""".strip()
+        await status.edit(text)
+    except Exception as e:
+        await status.edit(f"{ggl}<code>{e}</code>")

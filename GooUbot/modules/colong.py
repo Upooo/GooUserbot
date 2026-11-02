@@ -1,71 +1,68 @@
 __MODULE__ = "colong"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴄᴏʟᴏɴɢ--</b></blockquote>
+<blockquote><b>Colong / Save Media</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}colong</code>
-🦠 ᴋᴇᴛ : ᴜɴᴛᴜᴋ ᴍᴇɴɢᴀᴍʙɪʟ ᴍᴇᴅɪᴀ/ᴠɪᴅɪᴏ ʏᴀɴɢ 1x ʟɪʜᴀᴛ.</b></blockquote>
+<blockquote><b>Perintah:</b> <code>{0}colong</code> (reply media)
+Simpan media (termasuk view-once) ke Saved Messages. Max 10MB.</blockquote>
 """
 
-import asyncio
 import os
 
-from pyrogram.enums import MessageMediaType, MessagesFilter
-from pyrogram.raw.functions.messages import DeleteHistory
-from pyrogram.types import InputMediaPhoto
-
 from GooUbot import *
+
+MAX_SIZE = 10_000_000
+
 
 @PY.UBOT("colong")
 @PY.TOP_CMD
 async def _(client, message):
     prs = await EMO.PROSES(client)
     ggl = await EMO.GAGAL(client)
-    ktrng = await EMO.BL_KETERANGAN(client)
+    brhsl = await EMO.BERHASIL(client)
+
     dia = message.reply_to_message
     if not dia:
-        return await message.reply(f"{ggl}mohon balas ke media")
-    anjing = dia.caption or ""
-    Tm = await message.reply(f"{prs}processing...")
-    if dia.photo:
-        if message.reply_to_message.photo.file_size > 10000000:
-            return await Tm.edit(f"{ktrng}file di atas 10mb tidak di izinkan")
-        anu = await client.download_media(dia)
-        await client.send_photo(client.me.id, anu, anjing)
-        os.remove(anu)
-        await message.delete()
-        return await Tm.delete()
-    if dia.video:
-        if message.reply_to_message.video.file_size > 10000000:
-            return await Tm.edit(f"{ktrng}file di atas 10mb tidak di izinkan")
-        anu = await client.download_media(dia)
-        await client.send_video(client.me.id, anu, anjing)
-        os.remove(anu)
-        await message.delete()
-        return await Tm.delete()
-    if dia.audio:
-        if message.reply_to_message.audio.file_size > 10000000:
-            return await Tm.edit(f"{ktrng}file di atas 10mb tidak di izinkan")
-        anu = await client.download_media(dia)
-        await client.send_audio(client.me.id, anu, anjing)
-        os.remove(anu)
-        await message.delete()
-        return await Tm.delete()
-    if dia.voice:
-        if message.reply_to_message.voice.file_size > 10000000:
-            return await Tm.edit(f"{ktrng}file di atas 10mb tidak di izinkan")
-        anu = await client.download_media(dia)
-        await client.send_voice(client.me.id, anu, anjing)
-        os.remove(anu)
-        await message.delete()
-        return await Tm.delete()
-    if dia.document:
-        if message.reply_to_message.document.file_size > 10000000:
-            return await Tm.edit(f"{ktrng}file di atas 10mb tidak di izinkan")
-        anu = await client.download_media(dia)
-        await client.send_document(client.me.id, anu, anjing)
-        os.remove(anu)
-        await message.delete()
-        return await Tm.delete()
-    else:
-        return await Tm.reply(f"{ggl}sepertinya terjadi kesalahan")
+        return await message.reply(f"{ggl}Reply ke media.")
 
+    status = await message.reply(f"{prs}Processing...")
+    caption = dia.caption or ""
+    path = None
+
+    try:
+        media = (
+            dia.photo
+            or dia.video
+            or dia.audio
+            or dia.voice
+            or dia.document
+        )
+        if not media:
+            return await status.edit(f"{ggl}Media tidak didukung.")
+
+        size = getattr(media, "file_size", 0) or 0
+        if size > MAX_SIZE:
+            return await status.edit(f"{ggl}File di atas 10MB tidak diizinkan.")
+
+        path = await client.download_media(dia)
+
+        if dia.photo:
+            await client.send_photo(client.me.id, path, caption=caption)
+        elif dia.video:
+            await client.send_video(client.me.id, path, caption=caption)
+        elif dia.audio:
+            await client.send_audio(client.me.id, path, caption=caption)
+        elif dia.voice:
+            await client.send_voice(client.me.id, path, caption=caption)
+        elif dia.document:
+            await client.send_document(client.me.id, path, caption=caption)
+
+        await status.edit(f"{brhsl}Tersimpan di Saved Messages.")
+        try:
+            await message.delete()
+        except Exception:
+            pass
+    except Exception as e:
+        await status.edit(f"{ggl}<code>{e}</code>")
+    finally:
+        if path and os.path.exists(path):
+            os.remove(path)
