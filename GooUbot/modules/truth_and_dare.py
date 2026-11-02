@@ -1,66 +1,61 @@
-__MODULE__ = "truth dare"
+__MODULE__ = "truthdare"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴛʀᴜᴛʜ & ᴅᴀʀᴇ--</b></blockquote>
+<blockquote><b>Truth & Dare</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}dare</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴᴄᴏʙᴀ ᴛᴀɴᴛᴀɴɢᴀɴ ᴀᴄᴀᴋ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}truth</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴᴄᴏʙᴀ ᴘᴇʀᴛᴀɴʏᴀᴀɴ ᴋᴇᴊᴜᴊᴜʀᴀɴ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}apakah</code>
-🦠 ᴋᴇᴛ : ᴘᴇʀᴛᴀɴʏᴀᴀɴ ʏᴀɴɢ ᴀᴋᴀɴ ᴅɪᴊᴀᴡᴀʙ ʏᴀ/ᴛɪᴅᴀᴋ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}bagaimana</code>
-🦠 ᴋᴇᴛ : ᴘᴇʀᴛᴀɴʏᴀᴀɴ ᴅᴇɴɢᴀɴ ᴊᴀᴡᴀʙᴀɴ ᴀᴄᴀᴋ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}kenapa</code>
-🦠 ᴋᴇᴛ : ᴘᴇʀᴛᴀɴʏᴀᴀɴ "ᴋᴇɴᴀᴘᴀ" ᴅᴇɴɢᴀɴ ᴊᴀᴡᴀʙᴀɴ ᴀᴄᴀᴋ.</blockquote>
+<blockquote><b>Perintah:</b>
+<code>{0}truth</code> — pertanyaan kejujuran
+<code>{0}dare</code> — tantangan acak
+<code>{0}apakah</code> [tanya] — jawab ya/tidak
+<code>{0}bagaimana</code> [tanya]
+<code>{0}kenapa</code> [tanya]</blockquote>
 """
 
-import asyncio
 import random
 
-from GooUbot.modules import truth_and_dare_string as tod
-
 from GooUbot import *
+from GooUbot.modules import truth_and_dare_string as tod
 
 
 @PY.UBOT("apakah")
+@PY.TOP_CMD
 async def apakah(client, message):
-    split_text = message.text.split(None, 1)
-    if len(split_text) < 2:
-        return await message.reply("Berikan saya pertanyaan 😐")
-    cot = split_text[1]
-    await message.reply(f"{random.choice(tod.AP)}")
+    ggl = await EMO.GAGAL(client)
+    if len(message.command) < 2:
+        return await message.reply(f"{ggl}<code>{message.command[0]} [pertanyaan]</code>")
+    await message.reply(random.choice(tod.AP))
 
 
 @PY.UBOT("kenapa")
+@PY.TOP_CMD
 async def kenapa(client, message):
-    split_text = message.text.split(None, 1)
-    if len(split_text) < 2:
-        return await message.reply("Berikan saya pertanyaan 😐")
-    cot = split_text[1]
-    await message.reply(f"{random.choice(tod.KN)}")
+    ggl = await EMO.GAGAL(client)
+    if len(message.command) < 2:
+        return await message.reply(f"{ggl}<code>{message.command[0]} [pertanyaan]</code>")
+    await message.reply(random.choice(tod.KN))
 
 
 @PY.UBOT("bagaimana")
+@PY.TOP_CMD
 async def bagaimana(client, message):
-    split_text = message.text.split(None, 1)
-    if len(split_text) < 2:
-        return await message.reply("Berikan saya pertanyaan 😐")
-    cot = split_text[1]
-    await message.reply(f"{random.choice(tod.BG)}")
+    ggl = await EMO.GAGAL(client)
+    if len(message.command) < 2:
+        return await message.reply(f"{ggl}<code>{message.command[0]} [pertanyaan]</code>")
+    await message.reply(random.choice(tod.BG))
 
 
 @PY.UBOT("dare")
+@PY.TOP_CMD
 async def dare(client, message):
-    try:        
-        await message.edit(f"{random.choice(tod.DARE)}")
-    except BaseException:
-        pass
+    try:
+        await message.edit(random.choice(tod.DARE))
+    except Exception:
+        await message.reply(random.choice(tod.DARE))
+
 
 @PY.UBOT("truth")
+@PY.TOP_CMD
 async def truth(client, message):
     try:
-        await message.edit(f"{random.choice(tod.TRUTH)}")
+        await message.edit(random.choice(tod.TRUTH))
     except Exception:
-        pass
-
-
+        await message.reply(random.choice(tod.TRUTH))

@@ -1,89 +1,92 @@
-import asyncio
-
-from pyrogram.enums import ChatType
-from pyrogram.errors import FloodWait
-
-from .. import *
-from GooUbot import *
-
 __MODULE__ = "spam"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ sᴘᴀᴍ--</b></blockquote>
+<blockquote><b>Spam</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}spam</code>
-🦠 ᴋᴇᴛ : ᴍᴇʟᴀᴋᴜᴋᴀɴ sᴘᴀᴍ ᴘᴇsᴀɴ ʙᴇʀᴜʀᴜᴛᴀɴ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}setdelay</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢᴀᴛᴜʀ ᴅᴇʟᴀʏ ᴀɴᴛᴀʀᴀ ᴘᴇsᴀɴ ʏᴀɴɢ ᴅɪᴋɪʀɪᴍ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}stopspam</code>
-🦠 ᴋᴇᴛ : ᴍᴇᴍʙᴇʀʜᴇɴᴛɪᴋᴀɴ ᴘʀᴏsᴇs sᴘᴀᴍ ʏᴀɴɢ sᴇᴅᴀɴɢ ʙᴇʀʟᴀɴɢsᴜɴɢ.</blockquote>
+<blockquote><b>Perintah:</b>
+<code>{0}spam</code> [jumlah] [teks/reply]
+<code>{0}setdelay</code> [detik] — delay antar pesan
+<code>{0}stopspam</code> — stop spam</blockquote>
 """
 
+import asyncio
+
+from GooUbot import *
 
 spam_progress = []
 
-async def SpamMsg(client, message, send):
-    delay = await get_vars(client.me.id, "SPAM") or 0
-    await asyncio.sleep(int(delay))
+
+async def spam_msg(client, message, send):
+    delay = await get_vars(client.me.id, "SPAM") or 1
+    delay = max(int(delay), 1)
+    await asyncio.sleep(delay)
     if message.reply_to_message:
         await send.copy(message.chat.id)
     else:
         await client.send_message(message.chat.id, send)
 
+
 @PY.UBOT("spam")
 @PY.TOP_CMD
 async def _(client, message):
-    global spam_progress
-    spam_progress.append(client.me.id)
-    sks = await EMO.BERHASIL(client)
-    _msg = "<b>memproses...</b>"
+    brhsl = await EMO.BERHASIL(client)
+    ggl = await EMO.GAGAL(client)
+    prs = await EMO.PROSES(client)
 
-    r = await message.reply(_msg)
+    if client.me.id in spam_progress:
+        return await message.reply(f"{ggl}Spam masih jalan. Pakai <code>.stopspam</code>")
+
+    status = await message.reply(f"{prs}Processing...")
     count, msg = extract_type_and_msg(message)
 
     try:
         count = int(count)
     except Exception:
-        return await r.edit(f"<b><code>{message.text.split()[0]}</code> [jumlah] [text/reply_msg]</b>")
+        return await status.edit(
+            f"{ggl}<code>{message.command[0]} [jumlah] [teks/reply]</code>"
+        )
+
+    if count < 1 or count > 100:
+        return await status.edit(f"{ggl}Jumlah 1-100.")
 
     if not msg:
-        return await r.edit(
-            f"<b><code>{message.text.split()[0]}</code> [jumlah] [text/reply_msg]</b>"
+        return await status.edit(
+            f"{ggl}<code>{message.command[0]} [jumlah] [teks/reply]</code>"
         )
-    
-    for _ in range(count):
-        if client.me.id not in spam_progress:
-            await r.edit(f"<blockquote><b>proses spam berhasil di batalkan !</b> {sks}</blockquote>")
-            return
-        await SpamMsg(client, message, msg)
 
-    spam_progress.remove(client.me.id)    
-    await r.edit("<b>spam telah selesai</b>")
+    spam_progress.append(client.me.id)
+    try:
+        for _ in range(count):
+            if client.me.id not in spam_progress:
+                return await status.edit(f"{brhsl}Spam dibatalkan.")
+            await spam_msg(client, message, msg)
+        await status.edit(f"{brhsl}Spam selesai ({count}x).")
+    finally:
+        if client.me.id in spam_progress:
+            spam_progress.remove(client.me.id)
+
 
 @PY.UBOT("setdelay")
 @PY.TOP_CMD
 async def _(client, message):
-    _msg = "<b>memproses...</b>"
+    brhsl = await EMO.BERHASIL(client)
+    ggl = await EMO.GAGAL(client)
 
-    r = await message.reply(_msg)
-    count, msg = extract_type_and_msg(message)
+    if len(message.command) < 2 or not message.command[1].isdigit():
+        return await message.reply(f"{ggl}<code>{message.command[0]} [detik]</code>")
 
-    try:
-        count = int(count)
-    except Exception:
-        return await r.edit(f"<b><code>{message.text.split()[0]}</code> [count]</b>")
+    delay = max(int(message.command[1]), 1)
+    await set_vars(client.me.id, "SPAM", delay)
+    await message.reply(f"{brhsl}Delay spam: <code>{delay}</code> detik")
 
-    if not count:
-        return await r.edit(f"<b><code>{message.text.split()[0]}</code> [count]</b>")
-
-    await set_vars(client.me.id, "SPAM", count)
-    return await r.edit("<b>spam delay berhasil di setting</b>")
 
 @PY.UBOT("stopspam")
 @PY.TOP_CMD
 async def _(client, message):
-    global spam_progress
+    brhsl = await EMO.BERHASIL(client)
+    ggl = await EMO.GAGAL(client)
+
     if client.me.id in spam_progress:
         spam_progress.remove(client.me.id)
-        await message.reply("<b>spam telah berhenti</b>")
+        await message.reply(f"{brhsl}Spam di-stop.")
     else:
-        await message.reply("<b>tidak ada spam yang ditemukan</b>")
+        await message.reply(f"{ggl}Tidak ada spam yang berjalan.")
