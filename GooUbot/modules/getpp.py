@@ -1,73 +1,72 @@
-from pyrogram import Client, filters
-from pyrogram.errors import (
-    UsernameNotOccupied,
-    UserNotParticipant,
-    PeerIdInvalid
-)
-from GooUbot import *
-
 __MODULE__ = "profile"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴘʀᴏꜰɪʟ--</b></blockquote>
+<blockquote><b>Profile Photo</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}getpp</code> (ʀᴇᴘʟʏ ᴄʜᴀᴛ)
-🦠 ᴋᴇᴛ : ᴍᴇɴɢᴀᴍʙɪʟ ꜰᴏᴛᴏ ᴘʀᴏꜰɪʟ ᴅᴀʀɪ sᴇsᴇᴏʀᴀɴɢ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}setpp</code> (ʀᴇᴘʟʏ ᴍᴇᴅɪᴀ)
-🦠 ᴋᴇᴛ : ᴍᴇɴɢɢᴀɴᴛɪ ꜰᴏᴛᴏ ᴘʀᴏꜰɪʟ ᴀᴋᴜɴ ᴍᴜ ᴅᴇɴɢᴀɴ ɢᴀᴍʙᴀʀ ʏᴀɴɢ ᴅɪʀᴇᴘʟʏ.</blockquote>
+<blockquote><b>Perintah:</b> <code>{0}getpp</code> [user/reply]
+Ambil foto profil.</blockquote>
+
+<blockquote><b>Perintah:</b> <code>{0}setpp</code> (reply foto)
+Ganti foto profil akun.</blockquote>
 """
+
+import os
+
+from pyrogram.errors import PeerIdInvalid, UsernameNotOccupied, UserNotParticipant
+
+from GooUbot import *
 
 
 @PY.UBOT("getpp|getprofile")
+@PY.TOP_CMD
 async def get_profile_pic(client, message):
-    target = None
+    ggl = await EMO.GAGAL(client)
+    brhsl = await EMO.BERHASIL(client)
 
-    if message.reply_to_message:
+    if message.reply_to_message and message.reply_to_message.from_user:
         target = message.reply_to_message.from_user.id
-
     elif len(message.command) > 1:
         target = message.command[1]
-
     else:
         target = message.chat.id
-        
-    if not target:
-        return await message.reply_text("**__Gunakan `/getpp @username`, reply user, atau kirim `.getpp` di grup/channel untuk ambil PP.__**")
 
     try:
-        async for photo in client.get_chat_photos(target, limit=1):  # Ambil 1 foto terbaru
+        async for photo in client.get_chat_photos(target, limit=1):
             await client.send_photo(
                 message.chat.id,
                 photo=photo.file_id,
-                caption="<pre>Done✅</pre>"
+                caption=f"{brhsl}Profile photo",
             )
             return
-
-        await message.reply_text("**__User/grup tidak memiliki foto profil__**.")
-
+        await message.reply(f"{ggl}Tidak ada foto profil.")
     except (UsernameNotOccupied, UserNotParticipant, PeerIdInvalid):
-        await message.reply_text("**__Akun atau grup tidak ditemukan.__**")
+        await message.reply(f"{ggl}Akun/grup tidak ditemukan.")
     except Exception as e:
-        await message.reply_text(f"**__Terjadi kesalahan: {str(e)}__**")
+        await message.reply(f"{ggl}<code>{e}</code>")
+
 
 @PY.UBOT("setpp")
+@PY.TOP_CMD
 async def set_profile_photo(client, message):
+    ggl = await EMO.GAGAL(client)
+    brhsl = await EMO.BERHASIL(client)
+
     if not message.reply_to_message:
-        return await message.reply_text("**Balas ke foto atau media yang ingin dijadikan PP.**")
+        return await message.reply(f"{ggl}Reply ke foto/media.")
 
     media = message.reply_to_message
-
+    path = None
     try:
         if media.photo:
-            file = await media.download()
-        elif media.document and ("image" in media.document.mime_type):
-            file = await media.download()
-        elif media.video and media.video.thumbs:
-            file = await client.download_media(media.video.thumbs[0].file_id)
+            path = await media.download()
+        elif media.document and media.document.mime_type and "image" in media.document.mime_type:
+            path = await media.download()
         else:
-            return await message.reply_text("**Media tidak valid. Balas ke foto atau file gambar.**")
+            return await message.reply(f"{ggl}Media harus foto/gambar.")
 
-        await client.set_profile_photo(photo=file)
-        await message.reply_text("✅ **Foto profil berhasil diubah.**")
-
+        await client.set_profile_photo(photo=path)
+        await message.reply(f"{brhsl}Foto profil diganti.")
     except Exception as e:
-        await message.reply_text(f"❌ **Gagal mengatur foto profil:** `{str(e)}`")
+        await message.reply(f"{ggl}<code>{e}</code>")
+    finally:
+        if path and os.path.exists(path):
+            os.remove(path)

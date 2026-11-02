@@ -1,61 +1,56 @@
-from GooUbot import *
-import requests
-
 __MODULE__ = "country"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ ᴏᴜɴᴛʀʏ ɪɴꜰᴏ--</b></blockquote>
+<blockquote><b>Country Info</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}country [nama negara]</code>
-🦠 ᴋᴇᴛ : ᴜɴᴛᴜᴋ ᴍᴇɴᴀᴍᴘɪʟᴋᴀɴ ɪɴꜰᴏʀᴍᴀꜱɪ ᴛᴇɴᴛᴀɴɢ ꜱᴇꜱᴜᴀᴛᴜ ɴᴇɢᴀʀᴀ.</b></blockquote>
+<blockquote><b>Perintah:</b> <code>{0}country</code> [nama negara]
+Info negara (ibu kota, populasi, dll).</blockquote>
 """
+
+import requests
+
+from GooUbot import *
 
 API_URL = "https://api.siputzx.my.id/api/tools/countryInfo"
 
+
 @PY.UBOT("country")
+@PY.TOP_CMD
 async def country_info_cmd(client, message):
+    ggl = await EMO.GAGAL(client)
+    prs = await EMO.PROSES(client)
+
     if len(message.command) < 2:
-        await message.reply("<i>❌ Harap masukkan nama negara.</i>")
-        return
+        return await message.reply(f"{ggl}<code>{message.command[0]} [nama negara]</code>")
 
     country_name = message.text.split(None, 1)[1]
-    msg = await message.reply("<i>🔍 Mengambil data...</i>")
+    status = await message.reply(f"{prs}Mengambil data...")
 
     try:
-        response = requests.get(f"{API_URL}?name={country_name}")
+        response = requests.get(f"{API_URL}?name={country_name}", timeout=15)
         data = response.json()
 
-        # Debug: Print data untuk melihat struktur respons
-        print("Response JSON:", data)
-
         if response.status_code != 200 or not data.get("status"):
-            error_message = data.get("error", "Gagal mengambil data.")
-            await msg.edit(f"<b>❌ Gagal mengambil data.</b>\nPesan: {error_message}")
-            return
+            err = data.get("error", "Gagal mengambil data.")
+            return await status.edit(f"{ggl}{err}")
 
-        # Mengambil data dengan pengecekan lebih teliti
-        country_data = data.get("data", {})
+        info = data.get("data", {})
+        country = info.get("country", country_name)
+        capital = info.get("capital", "-")
+        region = info.get("region", "-")
+        population = f"{info.get('population', 0):,}" if info.get("population") else "-"
+        currency = info.get("currency", "-")
+        timezone = info.get("timezone", "-")
+        calling = info.get("calling_code", "-")
 
-        country = country_data.get("country", country_name)  # Gunakan input jika kosong
-        capital = country_data.get("capital", "Tidak diketahui")
-        region = country_data.get("region", "Tidak diketahui")
-        population = f"{country_data.get('population', 0):,}" if country_data.get("population") else "Tidak diketahui"
-        currency = country_data.get("currency", "Tidak diketahui")
-        timezone = country_data.get("timezone", "Tidak diketahui")
-        calling_code = f"+{country_data.get('calling_code', 'Tidak diketahui')}"
-
-        # Format hasil
-        result_text = f"""
-<blockquote>
-🌍 <b>Negara:</b> {country}
-📍 <b>Ibu Kota:</b> {capital}
-🗺️ <b>Wilayah:</b> {region}
-👥 <b>Populasi:</b> {population}
-💰 <b>Mata Uang:</b> {currency}
-🕰️ <b>Zona Waktu:</b> {timezone}
-📡 <b>Kode Telepon:</b> {calling_code}
-</blockquote>
-"""
-
-        await msg.edit(result_text)
+        text = f"""
+<blockquote><b>{country}</b>
+Ibu kota: {capital}
+Wilayah: {region}
+Populasi: {population}
+Mata uang: {currency}
+Timezone: {timezone}
+Kode telepon: +{calling}</blockquote>
+""".strip()
+        await status.edit(text)
     except Exception as e:
-        await msg.edit(f"<b>❌ Terjadi kesalahan:</b> {str(e)}")
+        await status.edit(f"{ggl}<code>{e}</code>")

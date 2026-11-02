@@ -1,55 +1,43 @@
-import asyncio
-from time import sleep
-from GooUbot import *
-
 __MODULE__ = "salam"
 __HELP__ = """
-<blockquote><b>--ʙᴀɴᴛᴜᴀɴ ᴜɴᴛᴜᴋ sᴀʟᴀᴍ--</b></blockquote>
+<blockquote><b>Salam</b></blockquote>
 
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}p</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢɪʀɪᴍ ᴀssᴀʟᴀᴍᴜ'ᴀʟᴀɪᴋᴜᴍ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}pe</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢɪʀɪᴍ ᴀssᴀʟᴀᴍᴜ'ᴀʟᴀɪᴋᴜᴍ ᴡᴀʀᴀʜᴍᴀᴛᴜʟʟᴀʜɪ ᴡᴀʙᴀʀᴀᴋᴀᴛᴜʜ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}l</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢɪʀɪᴍ ᴡᴀ'ᴀʟᴀɪᴋᴜᴍsᴀʟᴀᴍ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}wl</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢɪʀɪᴍ ᴡᴀ'ᴀʟᴀɪᴋᴜᴍsᴀʟᴀᴍ ᴡᴀʀᴀʜᴍᴀᴛᴜʟʟᴀʜɪ ᴡᴀʙᴀʀᴀᴋᴀᴛᴜʜ.</blockquote>
-<blockquote><b>🚦 ᴘᴇʀɪɴᴛᴀʜ :</b> <code>{0}as</code>
-🦠 ᴋᴇᴛ : ᴍᴇɴɢɪʀɪᴍ ᴛᴇᴋs ᴘᴇɴᴄᴏʙᴀᴀɴ.</blockquote>
+<blockquote><b>Perintah:</b>
+<code>{0}p</code> — Assalamu'alaikum
+<code>{0}pe</code> — Assalamualaikum Warahmatullahi Wabarakatuh
+<code>{0}l</code> — Wa'alaikumsalam
+<code>{0}wl</code> — Wa'alaikumsalam Warahmatullahi Wabarakatuh
+<code>{0}as</code> — Salam dulu</blockquote>
 """
 
+from GooUbot import *
 
 
 @PY.UBOT("p")
-async def inijugajangandiapusataudigantikrnizzyganteng(client, message):
-    await message.edit(
-        "Assalamu'alaikum",
-    )
+@PY.TOP_CMD
+async def _(client, message):
+    await message.edit("Assalamu'alaikum")
 
 
 @PY.UBOT("pe")
-async def biarpanjangajayangpentingizzyganteng(client, message):
-    await message.edit(
-        "Assalamualaikum Warahmatullahi Wabarakatuh",
-    )
+@PY.TOP_CMD
+async def _(client, message):
+    await message.edit("Assalamualaikum Warahmatullahi Wabarakatuh")
 
 
 @PY.UBOT("l")
-async def biarmampuslusemuakontol(client, message):
-    await message.edit(
-        "waalaikumsalam",
-    )
+@PY.TOP_CMD
+async def _(client, message):
+    await message.edit("Wa'alaikumsalam")
 
 
 @PY.UBOT("wl")
-async def ularnagapanajnagnyabukankepalangtapiizzygantengamat(client, message):
-    await message.edit(
-        "Wa'alaikumsalam Warahmatullahi Wabarakatuh",
-    )
+@PY.TOP_CMD
+async def _(client, message):
+    await message.edit("Wa'alaikumsalam Warahmatullahi Wabarakatuh")
 
 
 @PY.UBOT("as")
-async def pelerpelerpeler(client, message):
-    await message.edit(
-        "Salam dulu woy!",
-    )
+@PY.TOP_CMD
+async def _(client, message):
+    await message.edit("Salam dulu!")

@@ -2,7 +2,7 @@
 
 Multi-client Telegram userbot built on **Kurigram** + **PyTgCalls**.
 
-Bisa jalanin banyak akun userbot dalam satu instance, plugin-based, support voice chat, dan data disimpan di MongoDB.
+Bisa jalanin banyak akun userbot dalam satu instance, plugin-based, support voice chat, data di MongoDB.
 
 ## Features
 
@@ -11,13 +11,15 @@ Bisa jalanin banyak akun userbot dalam satu instance, plugin-based, support voic
 - Voice chat via PyTgCalls
 - MongoDB backend
 - Sistem expired / premium
-- Graceful shutdown & config validation
+- Logging ke file + console
+- Rate-limit aman di broadcast
+- Docker-ready
 
 ## Requirements
 
 - Python 3.10+
 - MongoDB
-- FFmpeg (buat voice chat & media processing)
+- FFmpeg (voice chat & media)
 
 ## Setup
 
@@ -33,10 +35,10 @@ pip install -U pip
 pip install -r requirements.txt
 
 cp .env.example .env
-# isi .env dulu sebelum jalanin
+# isi .env sebelum jalanin
 ```
 
-Isi minimal di `.env`:
+Minimal di `.env`:
 
 | Variable | Keterangan |
 |----------|------------|
@@ -46,7 +48,7 @@ Isi minimal di `.env`:
 | `OWNER_ID` | Telegram user ID kamu |
 | `MONGO_URL` | connection string MongoDB |
 
-Detail lengkap ada di `.env.example`.
+Detail lengkap di `.env.example`.
 
 ## Run
 
@@ -54,6 +56,12 @@ Detail lengkap ada di `.env.example`.
 python3 -m GooUbot
 # atau
 bash start.sh
+```
+
+Docker:
+
+```bash
+docker compose up -d --build
 ```
 
 ## Project Structure
@@ -69,26 +77,35 @@ GooUserbot/
 │   │   ├── function/
 │   │   └── helpers/
 │   └── modules/
+├── Dockerfile
+├── docker-compose.yml
 ├── .env.example
 ├── requirements.txt
-├── start.sh
 └── README.md
 ```
 
 ## Roadmap
 
-**Done**
-- Cleanup repo (hapus file sensitif, venv, dll)
+**Phase 1 — Done**
+- Cleanup repo (hapus file sensitif, venv, cookies)
 - Secure config via `.env`
-- Migrasi foundation ke Kurigram
-- Graceful shutdown, better logging, config validation
-- Fix event loop issues
+- README & struktur rapi
+
+**Phase 2 — Done**
+- Foundation Kurigram
+- Fix event loop / startup
+- Graceful shutdown & logging
+
+**Phase 3 — In progress**
+- Audit & polish module (admin, purge, broadcast, music, notes, dll)
+- Rate-limit broadcast & invite
+- Help text seragam
+- Calculator aman (AST)
 
 **Next**
-- Audit & cleanup module
 - Proxy support per client
-- Docker
-- Perbaikan permission / sudo system
+- Module AI / utility tambahan
+- Permission / sudo refinement
 - Support fitur Telegram terbaru
 
 ## Notes
